@@ -1,0 +1,2138 @@
+<!doctype html>
+<html lang="id">
+ <head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20260708-23-e6699ff"}');</script><script src="/_sdk/f432b76fb310b513.telemetry_sdk.js" integrity="sha512-9FJQ55EKmmqhyyik8BhrMVfm0+iYYfb8uOlRsjtkxJMEI97qOVEI4PnHohDjQAtvAep0IOEpdQ64eki0sz62ug=="></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIARE ASSIST</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+        * { font-family: 'DM Sans', sans-serif; }
+        :root {
+            --deep-teal: #0d5c63;
+            --emerald: #059669;
+            --warm-orange: #f97316;
+            --aqua: #06b6d4;
+        }
+        .glass { background: rgba(255,255,255,0.12); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.2); }
+        .glass-card { background: rgba(255,255,255,0.88); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.4); }
+        .glow { box-shadow: 0 0 30px rgba(6,182,212,0.12); }
+        #particles-canvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+        .sidebar { transition: transform 0.3s ease; }
+        .floating-icon { animation: float 4s ease-in-out infinite; position: absolute; opacity: 0.08; font-size: 3rem; }
+        .floating-icon:nth-child(2) { animation-delay: 1s; }
+        .floating-icon:nth-child(3) { animation-delay: 2s; }
+        @keyframes float { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-15px); } }
+        .risk-meter { width: 100%; height: 12px; border-radius: 6px; background: linear-gradient(to right, #10b981, #f59e0b, #ef4444); position: relative; }
+        .risk-indicator { width: 16px; height: 16px; border-radius: 50%; background: white; border: 3px solid #0d5c63; position: absolute; top: -2px; transition: left 0.5s; }
+        .tab-active { background: linear-gradient(135deg, var(--deep-teal), var(--emerald)); color: white; }
+        .progress-ring { transform: rotate(-90deg); }
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .hint-box { background: linear-gradient(135deg, #ecfdf5, #f0fdfa); border: 1px solid #a7f3d0; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; }
+        .hint-box p { font-size: 13px; color: #065f46; line-height: 1.5; }
+        .hint-box .hint-icon { display: inline-block; margin-right: 6px; }
+        @media (max-width: 768px) {
+            .sidebar-hidden { transform: translateX(-100%); }
+        }
+    </style>
+  <script src="/_sdk/9432170dbd2ae0df.resizing_sdk.js" type="text/javascript" integrity="sha512-FeT+58sb1f9ejWPWFjCbJvTT+SDwGV+ngrHUnlO7TWEOoqwOLj6p256kO3vOL7DIWl1cIgrobiof8v2bOigwPg=="></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen relative overflow-x-hidden">
+  <canvas id="particles-canvas"></canvas>
+  <div class="floating-icon" style="top:10%;left:80%">
+   🦠
+  </div>
+  <div class="floating-icon" style="top:40%;left:85%">
+   💊
+  </div>
+  <div class="floating-icon" style="top:70%;left:75%">
+   🩺
+  </div><!-- Mobile Header -->
+  <header class="md:hidden fixed top-0 left-0 right-0 z-50 glass px-4 py-3 flex items-center justify-between"><button id="menu-toggle" class="p-2 rounded-lg bg-white/20" aria-label="Menu"><i data-lucide="menu" class="w-5 h-5 text-white"></i></button>
+   <h1 data-template-id="mobile-title" class="canva-text text-white font-bold text-sm"></h1>
+   <div class="w-9"></div>
+  </header><!-- Sidebar -->
+  <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 z-40 glass-card shadow-xl flex flex-col sidebar-hidden md:translate-x-0">
+   <div class="p-5 border-b border-teal-100">
+    <h1 data-template-id="app-title" class="canva-text font-bold text-lg"></h1>
+    <p data-template-id="app-tagline" class="canva-text text-xs mt-1 opacity-70"></p>
+   </div>
+   <div class="p-4 border-b border-teal-100">
+    <div id="patient-identity-badge" class="mb-3 p-2 bg-teal-50 rounded-lg border border-teal-100 hidden">
+     <p class="text-[10px] text-teal-600 font-bold uppercase tracking-wider">Pasien Aktif</p>
+     <div class="flex items-center justify-between mt-0.5">
+      <span id="active-patient-name" class="text-xs font-bold text-gray-800 truncate max-w-[120px]"></span> <button onclick="clearPatientSession()" class="text-[10px] text-red-500 hover:text-red-700 font-semibold">Keluar</button>
+     </div>
+    </div><label data-template-id="role-label" class="canva-text text-xs font-semibold uppercase tracking-wide" for="role-select"></label> <select id="role-select" class="w-full mt-1 p-2 rounded-lg border border-teal-200 text-sm bg-white focus:ring-2 focus:ring-teal-400"> <option value="pasien">👤 Pasien / Umum</option> <option value="perawat">👩‍⚕️ Perawat</option> <option value="dokter">🩺 Dokter</option> <option value="admin">⚙️ Admin</option> </select>
+    <p class="text-xs text-gray-400 mt-1">Pilih sesuai kebutuhan Anda</p>
+   </div>
+   <nav id="sidebar-nav" class="flex-1 overflow-y-auto p-3 space-y-1"></nav>
+   <div class="p-3 border-t border-teal-100 space-y-2"><button onclick="resetToNewUserFlow()" class="w-full py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition"> <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reset Aplikasi Total </button>
+    <div class="text-center">
+     <p data-template-id="footer-text" class="canva-text text-xs opacity-50"></p>
+    </div>
+   </div>
+  </aside><!-- Main Content -->
+  <main id="main-content" class="md:ml-64 relative z-10 pt-16 md:pt-0 min-h-screen">
+   <!-- Patient Login Overlay Card -->
+   <div id="patient-login-overlay" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4">
+     <div class="text-center">
+      <span class="text-4xl">🏥</span>
+      <h3 class="text-xl font-bold text-gray-800 mt-2">Pendaftaran Pasien DIARE ASSIST</h3>
+      <p class="text-xs text-gray-500 mt-1">Lengkapi data pribadi Anda secara mandiri sebelum melanjutkan.</p>
+     </div>
+     <form id="patient-login-form" class="space-y-3">
+      <div>
+       <label for="login-name-input" class="text-xs font-bold text-gray-600 block mb-1">Nama Lengkap</label> <input id="login-name-input" type="text" class="w-full p-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-400 focus:outline-none" placeholder="Masukkan nama lengkap Anda..." required>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+       <div>
+        <label for="login-birth-input" class="text-xs font-bold text-gray-600 block mb-1">Tanggal Lahir</label> <input id="login-birth-input" type="date" class="w-full p-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-400 focus:outline-none" required>
+       </div>
+       <div>
+        <label for="login-gender-input" class="text-xs font-bold text-gray-600 block mb-1">Jenis Kelamin</label> <select id="login-gender-input" class="w-full p-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-400 focus:outline-none" required> <option value="Laki-laki">Laki-laki</option> <option value="Perempuan">Perempuan</option> </select>
+       </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2 pb-2">
+       <div>
+        <label for="login-phone-input" class="text-xs font-bold text-gray-600 block mb-1">Nomor Telepon</label> <input id="login-phone-input" type="tel" class="w-full p-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-400 focus:outline-none" placeholder="08xxxxx" required>
+       </div>
+       <div>
+        <label for="login-blood-input" class="text-xs font-bold text-gray-600 block mb-1">Golongan Darah</label> <select id="login-blood-input" class="w-full p-2 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-teal-400 focus:outline-none" required> <option value="A">A</option> <option value="B">B</option> <option value="AB">AB</option> <option value="O">O</option> <option value="Tidak Tahu">Tidak Tahu</option> </select>
+       </div>
+      </div><button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-bold text-sm shadow-md hover:shadow-lg transition">Daftar &amp; Konfirmasi</button>
+     </form>
+     <div class="text-center">
+      <button onclick="skipPatientLogin()" class="text-xs text-teal-600 hover:underline">Lewati / Cari Tanpa Masuk</button>
+     </div>
+    </div>
+   </div><!-- Patient Confirmation & Verification Card before screening -->
+   <div id="patient-verification-card" class="hidden max-w-xl mx-auto mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm fade-in">
+    <div class="flex items-start gap-3">
+     <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 flex-shrink-0">
+      <i data-lucide="shield-check" class="w-5 h-5"></i>
+     </div>
+     <div class="flex-1 min-w-0">
+      <h4 class="font-bold text-amber-900 text-sm mb-1">Konfirmasi Identitas Pasien</h4>
+      <p class="text-xs text-amber-700 mb-3 leading-relaxed">Sebelum Anda melanjutkan ke pengisian formulir skrining, mohon verifikasi data pasien terdaftar di bawah ini demi keakuratan pencatatan klinis.</p>
+      <div class="bg-white/80 rounded-xl p-3 border border-amber-100 grid grid-cols-2 gap-x-4 gap-y-2 text-xs mb-3">
+       <div><span class="text-gray-400 block">Nama Lengkap:</span> <strong id="verify-name" class="text-gray-800"></strong>
+       </div>
+       <div><span class="text-gray-400 block">Tanggal Lahir:</span> <strong id="verify-birth" class="text-gray-800"></strong>
+       </div>
+       <div><span class="text-gray-400 block">No. Telepon:</span> <strong id="verify-phone" class="text-gray-800"></strong>
+       </div>
+       <div><span class="text-gray-400 block">Golongan Darah:</span> <strong id="verify-blood" class="text-gray-800"></strong>
+       </div>
+       <div><span class="text-gray-400 block">Jenis Kelamin:</span> <strong id="verify-gender" class="text-gray-800"></strong>
+       </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+       <button onclick="confirmAndStartScreening()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow-sm"> <i data-lucide="check" class="w-3.5 h-3.5"></i> Ya, Data Sudah Benar </button> <button onclick="editPatientRegistration()" class="px-3.5 py-1.5 bg-white hover:bg-gray-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-medium transition flex items-center gap-1"> <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Ubah Data </button>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="p-4 md:p-8 max-w-7xl mx-auto" id="content-area"></div>
+  </main><!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+   <div class="glass-card rounded-xl px-5 py-3 shadow-lg glow flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i> <span id="toast-msg" class="text-sm font-medium text-gray-700"></span>
+   </div>
+  </div>
+  <script src="/_sdk/0179d719c431a79e.data_sdk.js" integrity="sha512-OsRvJkI5GkC3MJQcgotQYotpzrMSX415GiKKgvYdxQEEkzD/fdchShO2FMSy0PJr/tiINMXOk5Vl2zAgg6bUiA=="></script>
+  <script src="/_sdk/719055fef2a85d14.editing_sdk.js" integrity="sha512-kFqrdGgIiTOsu307feB5Cy3JVP9IayftsmCIZ0csxYBGuBmJQPhyvcnmKR8F0fTW97h5s1gAvz3SumI8zJ6OxQ=="></script>
+  <script>
+    let allRecords = [];
+    let currentRole = 'pasien';
+    let currentView = 'dashboard';
+    let currentPatientId = null;
+    let patientSessionName = localStorage.getItem('diare_patient_name') || '';
+    let patientBirthDate = localStorage.getItem('diare_patient_birth') || '';
+    let patientPhone = localStorage.getItem('diare_patient_phone') || '';
+    let patientGender = localStorage.getItem('diare_patient_gender') || '';
+    let patientBloodType = localStorage.getItem('diare_patient_blood') || '';
+
+    let patientDrugAllergy = localStorage.getItem('diare_patient_allergy') || '';
+    let patientMedicalHistory = localStorage.getItem('diare_patient_history') || '';
+    let patientRecentMedication = localStorage.getItem('diare_patient_recent_med') || '';
+
+    // Patient login helpers
+    window.checkPatientSession = function() {
+        const overlay = document.getElementById('patient-login-overlay');
+        const badge = document.getElementById('patient-identity-badge');
+        const activeNameSpan = document.getElementById('active-patient-name');
+        const verificationCard = document.getElementById('patient-verification-card');
+
+        if (currentRole === 'pasien') {
+            if (!patientSessionName) {
+                overlay.classList.remove('hidden');
+                badge.classList.add('hidden');
+                if (verificationCard) verificationCard.classList.add('hidden');
+            } else {
+                overlay.classList.add('hidden');
+                badge.classList.remove('hidden');
+                activeNameSpan.textContent = patientSessionName;
+
+                // Update verification element fields if present
+                const vName = document.getElementById('verify-name');
+                const vBirth = document.getElementById('verify-birth');
+                const vPhone = document.getElementById('verify-phone');
+                const vBlood = document.getElementById('verify-blood');
+                const vGender = document.getElementById('verify-gender');
+                
+                if (vName) vName.textContent = patientSessionName;
+                if (vBirth) vBirth.textContent = patientBirthDate || '-';
+                if (vPhone) vPhone.textContent = patientPhone || '-';
+                if (vBlood) vBlood.textContent = patientBloodType || '-';
+                if (vGender) vGender.textContent = patientGender || '-';
+
+                // Display verification banner if they are looking at dashboard/screening
+                if (currentView === 'screening' || currentView === 'dashboard') {
+                    if (verificationCard) verificationCard.classList.remove('hidden');
+                } else {
+                    if (verificationCard) verificationCard.classList.add('hidden');
+                }
+            }
+        } else {
+            overlay.classList.add('hidden');
+            badge.classList.add('hidden');
+            if (verificationCard) verificationCard.classList.add('hidden');
+        }
+    };
+
+    window.skipPatientLogin = function() {
+        document.getElementById('patient-login-overlay').classList.add('hidden');
+    };
+
+    window.editPatientRegistration = function() {
+        const overlay = document.getElementById('patient-login-overlay');
+        if (overlay) {
+            document.getElementById('login-name-input').value = patientSessionName;
+            document.getElementById('login-birth-input').value = patientBirthDate;
+            document.getElementById('login-phone-input').value = patientPhone;
+            document.getElementById('login-gender-input').value = patientGender || 'Laki-laki';
+            document.getElementById('login-blood-input').value = patientBloodType || 'A';
+            overlay.classList.remove('hidden');
+        }
+    };
+
+    window.confirmAndStartScreening = function() {
+        const verificationCard = document.getElementById('patient-verification-card');
+        if (verificationCard) verificationCard.classList.add('hidden');
+        showToast('Identitas Anda terverifikasi! Silakan lanjut ke pemeriksaan.');
+        if (currentView !== 'screening') {
+            renderView('screening');
+        }
+    };
+
+    window.clearPatientSession = function() {
+        localStorage.removeItem('diare_patient_name');
+        localStorage.removeItem('diare_patient_birth');
+        localStorage.removeItem('diare_patient_phone');
+        localStorage.removeItem('diare_patient_gender');
+        localStorage.removeItem('diare_patient_blood');
+        localStorage.removeItem('diare_patient_allergy');
+        localStorage.removeItem('diare_patient_history');
+        localStorage.removeItem('diare_patient_recent_med');
+        patientSessionName = '';
+        patientBirthDate = '';
+        patientPhone = '';
+        patientGender = '';
+        patientBloodType = '';
+        patientDrugAllergy = '';
+        patientMedicalHistory = '';
+        patientRecentMedication = '';
+        checkPatientSession();
+        renderView('dashboard');
+        showToast('Sesi pasien dinonaktifkan.');
+    };
+
+    window.resetToNewUserFlow = async function() {
+        // Create an in-app confirmation modal for total system reset
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 fade-in';
+        modal.id = 'confirm-reset-modal';
+        modal.innerHTML = `
+            <div class="glass-card max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4">
+                <div class="flex items-center gap-3 text-red-600">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="refresh-cw" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Mulai Ulang Aplikasi?</h3>
+                </div>
+                <p class="text-sm text-gray-600 leading-relaxed">Semua sesi pasien aktif, data lokal di browser Anda, dan riwayat klinis yang disimpan di Canva Sheet akan dihapus secara total dan permanen agar aplikasi kembali bersih seperti pengguna baru.</p>
+                <div class="flex gap-3 justify-end pt-2">
+                    <button id="cancel-reset-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition">Batal</button>
+                    <button id="confirm-reset-btn" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md hover:shadow-lg">Ya, Reset Total</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        lucide.createIcons();
+
+        return new Promise((resolve) => {
+            document.getElementById('cancel-reset-btn').addEventListener('click', () => {
+                modal.remove();
+                resolve();
+            });
+
+            document.getElementById('confirm-reset-btn').addEventListener('click', async () => {
+                // Delete all rows in database via SDK
+                const recordsToDelete = [...allRecords];
+                for (const record of recordsToDelete) {
+                    await window.dataSdk.delete(record);
+                }
+
+                // Clear storage and state
+                localStorage.removeItem('diare_patient_name');
+                localStorage.removeItem('diare_patient_birth');
+                localStorage.removeItem('diare_patient_phone');
+                localStorage.removeItem('diare_patient_gender');
+                localStorage.removeItem('diare_patient_blood');
+                localStorage.removeItem('diare_patient_allergy');
+                localStorage.removeItem('diare_patient_history');
+                localStorage.removeItem('diare_patient_recent_med');
+                patientSessionName = '';
+                patientBirthDate = '';
+                patientPhone = '';
+                patientGender = '';
+                patientBloodType = '';
+                patientDrugAllergy = '';
+                patientMedicalHistory = '';
+                patientRecentMedication = '';
+
+                // Set default role to pasien
+                currentRole = 'pasien';
+                const roleSelect = document.getElementById('role-select');
+                if (roleSelect) roleSelect.value = 'pasien';
+
+                modal.remove();
+                checkPatientSession();
+                renderView('dashboard');
+                showToast('Aplikasi berhasil dibersihkan seperti baru!');
+                resolve();
+            });
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginForm = document.getElementById('patient-login-form');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameInput = document.getElementById('login-name-input');
+                const birthInput = document.getElementById('login-birth-input');
+                const genderInput = document.getElementById('login-gender-input');
+                const phoneInput = document.getElementById('login-phone-input');
+                const bloodInput = document.getElementById('login-blood-input');
+
+                if (nameInput && nameInput.value.trim()) {
+                    const cleanName = nameInput.value.trim();
+                    const cleanBirth = birthInput ? birthInput.value : '';
+                    const cleanGender = genderInput ? genderInput.value : '';
+                    const cleanPhone = phoneInput ? phoneInput.value.trim() : '';
+                    const cleanBlood = bloodInput ? bloodInput.value : '';
+
+                    localStorage.setItem('diare_patient_name', cleanName);
+                    localStorage.setItem('diare_patient_birth', cleanBirth);
+                    localStorage.setItem('diare_patient_phone', cleanPhone);
+                    localStorage.setItem('diare_patient_gender', cleanGender);
+                    localStorage.setItem('diare_patient_blood', cleanBlood);
+                    localStorage.setItem('diare_patient_allergy', '');
+                    localStorage.setItem('diare_patient_history', '');
+                    localStorage.setItem('diare_patient_recent_med', '');
+
+                    patientSessionName = cleanName;
+                    patientBirthDate = cleanBirth;
+                    patientPhone = cleanPhone;
+                    patientGender = cleanGender;
+                    patientBloodType = cleanBlood;
+                    patientDrugAllergy = '';
+                    patientMedicalHistory = '';
+                    patientRecentMedication = '';
+
+                    checkPatientSession();
+                    showToast(`Sesi pasien dimulai untuk: ${cleanName}`);
+                    renderView('dashboard');
+                }
+            });
+        }
+    });
+
+    const NAV_ITEMS = {
+        pasien: [
+            {id:'dashboard', icon:'layout-dashboard', label:'Beranda', desc:'Ringkasan kondisi Anda'},
+            {id:'screening', icon:'clipboard-list', label:'Cek Gejala Diare', desc:'Periksa gejala Anda'},
+            {id:'ai-feses', icon:'scan', label:'Cek Bentuk BAB', desc:'Kenali kondisi BAB'},
+            {id:'risk', icon:'alert-triangle', label:'Tingkat Bahaya', desc:'Seberapa serius?'},
+            {id:'faskes', icon:'map-pin', label:'Faskes Terdekat', desc:'Cari klinik & RS terdekat'},
+            {id:'education', icon:'book-open', label:'Info Diare', desc:'Pelajari tentang diare'},
+            {id:'brat-diet', icon:'utensils', label:'Makanan Saat Diare', desc:'Apa yang boleh dimakan'},
+            {id:'history', icon:'history', label:'Riwayat Saya', desc:'Catatan sebelumnya'},
+            {id:'quiz', icon:'help-circle', label:'Kuis Pengetahuan', desc:'Uji pemahaman Anda'},
+        ],
+        perawat: [
+            {id:'dashboard', icon:'layout-dashboard', label:'Dashboard'},
+            {id:'patients', icon:'users', label:'Data Pasien'},
+            {id:'screening', icon:'clipboard-list', label:'Pengkajian'},
+            {id:'risk', icon:'alert-triangle', label:'Analisis Risiko'},
+            {id:'sdki', icon:'stethoscope', label:'Diagnosis SDKI'},
+            {id:'slki', icon:'target', label:'Luaran SLKI'},
+            {id:'siki', icon:'list-checks', label:'Intervensi SIKI'},
+            {id:'implementation', icon:'check-square', label:'Implementasi'},
+            {id:'outcome', icon:'trending-up', label:'Outcome'},
+            {id:'soap', icon:'file-text', label:'Evaluasi SOAP'},
+            {id:'report', icon:'file-bar-chart', label:'Laporan'},
+        ],
+        dokter: [
+            {id:'dashboard', icon:'layout-dashboard', label:'Dashboard'},
+            {id:'patients', icon:'users', label:'Data Pasien'},
+            {id:'screening', icon:'clipboard-list', label:'Hasil Skrining'},
+            {id:'risk', icon:'alert-triangle', label:'Analisis Risiko'},
+            {id:'therapy', icon:'pill', label:'Terapi Farmakologis'},
+            {id:'outcome', icon:'trending-up', label:'Monitoring'},
+            {id:'soap', icon:'file-text', label:'Evaluasi SOAP'},
+            {id:'report', icon:'file-bar-chart', label:'Laporan'},
+        ],
+        admin: [
+            {id:'dashboard', icon:'layout-dashboard', label:'Dashboard'},
+            {id:'patients', icon:'users', label:'Semua Data'},
+            {id:'report', icon:'file-bar-chart', label:'Laporan'},
+        ]
+    };
+
+    async function clearAllData() {
+        // Create an in-app confirmation modal instead of using the blocked window.confirm
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 fade-in';
+        modal.id = 'confirm-delete-modal';
+        modal.innerHTML = `
+            <div class="glass-card max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4">
+                <div class="flex items-center gap-3 text-red-600">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Hapus Semua Data?</h3>
+                </div>
+                <p class="text-sm text-gray-600 leading-relaxed">Apakah Anda yakin ingin menghapus semua data pemeriksaan? Tindakan ini akan menghapus data di Canva Sheet secara permanen dan tidak dapat dibatalkan.</p>
+                <div class="flex gap-3 justify-end pt-2">
+                    <button id="cancel-delete-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition">Batal</button>
+                    <button id="confirm-delete-btn" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md hover:shadow-lg">Ya, Hapus Semua</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        lucide.createIcons();
+
+        return new Promise((resolve) => {
+            document.getElementById('cancel-delete-btn').addEventListener('click', () => {
+                modal.remove();
+                resolve();
+            });
+
+            document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+                const confirmBtn = document.getElementById('confirm-delete-btn');
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin inline mr-1"></i> Memproses...';
+                lucide.createIcons();
+
+                const btn = document.getElementById('clear-data-btn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menghapus...';
+                    lucide.createIcons();
+                }
+                
+                let successCount = 0;
+                let failCount = 0;
+                
+                // Delete records sequentially
+                const recordsToDelete = [...allRecords];
+                for (const record of recordsToDelete) {
+                    const result = await window.dataSdk.delete(record);
+                    if (result.isOk) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                    }
+                }
+                
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Semua Data';
+                    lucide.createIcons();
+                }
+                
+                modal.remove();
+
+                if (failCount === 0) {
+                    showToast('Semua data berhasil dihapus!');
+                } else {
+                    showToast(`Berhasil menghapus ${successCount} data, ${failCount} gagal.`);
+                }
+                resolve();
+            });
+        });
+    }
+
+    const BRISTOL = [
+        {type:1, desc:'Gumpalan keras terpisah (seperti kacang)', risk:'Sembelit', color:'🟤', dehydration:'Rendah', simple:'Feses keras seperti batu kecil-kecil'},
+        {type:2, desc:'Berbentuk sosis tapi bergumpal', risk:'Sedikit sembelit', color:'🟤', dehydration:'Rendah', simple:'Agak keras, berbentuk batang bergumpal'},
+        {type:3, desc:'Sosis dengan retakan di permukaan', risk:'Normal', color:'🟤', dehydration:'Tidak ada', simple:'Normal - bentuk batang dengan sedikit retakan'},
+        {type:4, desc:'Sosis halus dan lembut', risk:'Normal / Ideal', color:'🟤', dehydration:'Tidak ada', simple:'Paling sehat - lembut dan mudah keluar'},
+        {type:5, desc:'Gumpalan lembut dengan tepi jelas', risk:'Diare Ringan', color:'🟡', dehydration:'Sedikit', simple:'Agak encer - mulai mengarah ke diare'},
+        {type:6, desc:'Potongan lembek, tepi tidak jelas', risk:'Diare Sedang', color:'🟠', dehydration:'Sedang', simple:'Encer dan lembek - tanda diare'},
+        {type:7, desc:'Cair seluruhnya, tidak ada potongan', risk:'Diare Berat', color:'🔴', dehydration:'Tinggi', simple:'Sangat cair seperti air - diare berat!'},
+    ];
+
+    const SDKI_LIST = [
+        {code: 'D.0020', name: 'Diare', def: 'Pengeluaran feses yang sering, lunak dan tidak berbentuk.', primarySlki: 'L.04137', primarySiki: 'I.03101'},
+        {code: 'D.0023', name: 'Hipovolemia', def: 'Penurunan volume cairan intravaskular, interstitial, dan/atau intraselular.', primarySlki: 'L.03028', primarySiki: 'I.03116'},
+        {code: 'D.0130', name: 'Hipertermia', def: 'Suhu tubuh meningkat di atas rentang normal tubuh.', primarySlki: 'L.14134', primarySiki: 'I.15506'},
+        {code: 'D.0077', name: 'Nyeri Akut', def: 'Sensasi tidak nyaman/sensoris akibat kerusakan jaringan aktual/fungsional.', primarySlki: 'L.08066', primarySiki: 'I.08238'},
+        {code: 'D.0019', name: 'Defisit Nutrisi', def: 'Asupan nutrisi tidak cukup untuk memenuhi kebutuhan metabolisme.', primarySlki: 'L.03030', primarySiki: 'I.03119'}
+    ];
+
+    const SLKI_LIST = [
+        {code: 'L.04137', name: 'Eliminasi Fekal', def: 'Kondisi pengosongan usus yang konsisten dan nyaman.', indicators: ['Konsistensi feses', 'Frekuensi buang air besar', 'Kontrol pengeluaran feses', 'Nyeri abdomen', 'Kram abdomen']},
+        {code: 'L.03028', name: 'Status Cairan', def: 'Kondisi hidrasi tubuh yang adekuat.', indicators: ['Kekuatan nadi', 'Turgor kulit', 'Output urin', 'Ortopnea', 'Rasa haus']},
+        {code: 'L.14134', name: 'Termoregulasi', def: 'Pengaturan suhu tubuh agar tetap berada pada rentang normal.', indicators: ['Suhu tubuh', 'Suhu kulit', 'Pucat', 'Takipnea', 'Hipoksia']},
+        {code: 'L.08066', name: 'Tingkat Nyeri', def: 'Sensasi subjektif tidak nyaman yang berkurang.', indicators: ['Keluhan nyeri', 'Meringis', 'Sikap protektif', 'Gelisah', 'Kesulitan tidur']},
+        {code: 'L.03030', name: 'Status Nutrisi', def: 'Keberadaan nutrisi yang adekuat untuk metabolisme.', indicators: ['Porsi makanan dihabiskan', 'Kekuatan otot pengunyah', 'Serum albumin', 'Diare', 'Nafsu makan']}
+    ];
+
+    const SIKI_LIST = [
+        {code: 'I.03101', name: 'Manajemen Diare', def: 'Mengidentifikasi dan mengelola pengeluaran feses yang sering dan lunak.', obs: ['Monitor riwayat, frekuensi, dan konsistensi BAB', 'Monitor tanda dan gejala dehidrasi'], tera: ['Berikan asupan cairan rehidrasi oral (oralit)', 'Berikan diet lunak rendah serat'], edu: ['Anjurkan makanan porsi kecil dan sering', 'Ajarkan cuci tangan bersih'], kol: ['Kolaborasi pemberian obat anti-diare / antibiotik']},
+        {code: 'I.03116', name: 'Manajemen Hipovolemia', def: 'Mengidentifikasi dan mengelola penurunan volume cairan intravaskular.', obs: ['Periksa tanda dan gejala hipovolemia (nadi lemah, turgor lambat)', 'Monitor intake dan output cairan'], tera: ['Hitung kebutuhan cairan tubuh', 'Berikan asupan cairan oral'], edu: ['Anjurkan memperbanyak asupan cairan oral', 'Anjurkan menghindari perubahan posisi mendadak'], kol: ['Kolaborasi pemberian cairan IV isotonis']},
+        {code: 'I.15506', name: 'Manajemen Hipertermia', def: 'Mengidentifikasi dan mengelola peningkatan suhu tubuh.', obs: ['Monitor suhu tubuh secara berkala', 'Monitor komplikasi akibat hipertermia'], tera: ['Sediakan lingkungan yang dingin dan nyaman', 'Longgarkan atau lepaskan pakaian'], edu: ['Anjurkan tirah baring', 'Anjurkan memperbanyak minum air putih'], kol: ['Kolaborasi pemberian antipiretik']},
+        {code: 'I.08238', name: 'Manajemen Nyeri', def: 'Mengidentifikasi dan mengelola pengalaman sensorik/emosional tidak nyaman.', obs: ['Identifikasi lokasi, karakteristik, durasi, frekuensi, intensitas nyeri', 'Identifikasi skala nyeri'], tera: ['Berikan teknik nonfarmakologis untuk mengurangi nyeri', 'Fasilitasi istirahat dan tidur'], edu: ['Jelaskan penyebab, periode, dan pemicu nyeri', 'Ajarkan teknik nonfarmakologis secara mandiri'], kol: ['Kolaborasi pemberian analgetik']},
+        {code: 'I.03119', name: 'Manajemen Nutrisi', def: 'Mengidentifikasi dan mengelola asupan nutrisi yang seimbang.', obs: ['Identifikasi status nutrisi', 'Monitor asupan makanan'], tera: ['Sajikan makanan secara menarik', 'Berikan suplemen makanan jika perlu'], edu: ['Anjurkan posisi duduk saat makan', 'Ajarkan diet yang diprogramkan'], kol: ['Kolaborasi dengan ahli gizi untuk menentukan kebutuhan kalori']}
+    ];
+
+    const SIKI_CATEGORIES = {
+        'Observasi': ['Monitor frekuensi BAB','Monitor konsistensi feses','Monitor tanda dehidrasi','Monitor intake-output cairan','Monitor tanda vital'],
+        'Terapeutik': ['Berikan cairan rehidrasi oral','Pertahankan akses IV','Berikan terapi sesuai program','Jaga kebersihan perianal','Atur posisi nyaman'],
+        'Edukasi': ['Jelaskan penyebab diare','Ajarkan cara pencegahan','Jelaskan tanda bahaya','Anjurkan diet lunak','Ajarkan cuci tangan'],
+        'Kolaborasi': ['Kolaborasi pemberian antiemetik','Kolaborasi pemeriksaan lab','Kolaborasi pemberian antibiotik','Kolaborasi konsultasi gizi','Rujuk ke spesialis']
+    };
+
+    // Helper: hint box for laypersons
+    function hintBox(text) {
+        return `<div class="hint-box"><p><span class="hint-icon">💡</span>${text}</p></div>`;
+    }
+
+    const dataHandler = {
+        onDataChanged(data) {
+            allRecords = data;
+            if (currentView === 'dashboard') renderDashboard();
+            if (currentView === 'patients' || currentView === 'history') renderPatients();
+        }
+    };
+
+    async function initApp() {
+        // Clear patient session on fresh load to make it completely clean like a new user
+        localStorage.removeItem('diare_patient_name');
+        localStorage.removeItem('diare_patient_birth');
+        localStorage.removeItem('diare_patient_phone');
+        localStorage.removeItem('diare_patient_gender');
+        localStorage.removeItem('diare_patient_blood');
+        localStorage.removeItem('diare_patient_allergy');
+        localStorage.removeItem('diare_patient_history');
+        localStorage.removeItem('diare_patient_recent_med');
+        patientSessionName = '';
+        patientBirthDate = '';
+        patientPhone = '';
+        patientGender = '';
+        patientBloodType = '';
+        patientDrugAllergy = '';
+        patientMedicalHistory = '';
+        patientRecentMedication = '';
+
+        const r = await window.dataSdk.init(dataHandler);
+        if (!r.isOk) console.error('SDK init failed');
+        checkPatientSession();
+        renderSidebar();
+        renderView('dashboard');
+    }
+
+    function renderSidebar() {
+        const nav = document.getElementById('sidebar-nav');
+        const items = NAV_ITEMS[currentRole] || [];
+        nav.innerHTML = items.map(it => `
+            <button onclick="renderView('${it.id}')" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-teal-50 transition ${currentView===it.id?'tab-active':''}">
+                <i data-lucide="${it.icon}" class="w-4 h-4"></i>
+                <div class="text-left">
+                    <span class="block">${it.label}</span>
+                    ${it.desc?`<span class="block text-xs opacity-60 font-normal">${it.desc}</span>`:''}
+                </div>
+            </button>
+        `).join('');
+        lucide.createIcons();
+    }
+
+    function renderView(view) {
+        currentView = view;
+        renderSidebar();
+        const area = document.getElementById('content-area');
+        switch(view) {
+            case 'dashboard': renderDashboard(); break;
+            case 'screening': renderScreening(); break;
+            case 'ai-feses': renderAIFeses(); break;
+            case 'risk': renderRisk(); break;
+            case 'faskes': renderFaskes(); break;
+            case 'education': renderEducation(); break;
+            case 'brat-diet': renderBRATDiet(); break;
+            case 'history': case 'patients': renderPatients(); break;
+            case 'sdki': renderSDKI(); break;
+            case 'slki': renderSLKI(); break;
+            case 'siki': renderSIKI(); break;
+            case 'implementation': renderImplementation(); break;
+            case 'outcome': renderOutcome(); break;
+            case 'soap': renderSOAP(); break;
+            case 'therapy': renderTherapy(); break;
+            case 'report': renderReport(); break;
+            case 'quiz': renderQuiz(); break;
+            default: renderDashboard();
+        }
+        if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('sidebar-hidden');
+    }
+
+    function getPatientData(patientId) {
+        return allRecords.find(r => r.__backendId === patientId && r.record_type === 'screening');
+    }
+
+    function viewPatientDetail(patientId) {
+        currentPatientId = patientId;
+        renderPatientWorkflow();
+    }
+
+    function renderDashboard() {
+        let screenings = allRecords.filter(r=>r.record_type==='screening');
+        if (currentRole === 'pasien' && patientSessionName) {
+            screenings = screenings.filter(r => r.patient_name && r.patient_name.toLowerCase() === patientSessionName.toLowerCase());
+        }
+        const highRisk = screenings.filter(r=>r.risk_level==='Tinggi').length;
+        const area = document.getElementById('content-area');
+
+        if(currentRole === 'pasien') {
+            area.innerHTML = `
+                <div class="fade-in">
+                    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Selamat Datang${patientSessionName ? ', ' + patientSessionName : ''}! 👋</h2>
+                            <p class="text-sm text-gray-500 mt-1">Aplikasi ini membantu Anda memahami dan menangani diare dengan mudah</p>
+                        </div>
+                        ${!patientSessionName ? `
+                            <button onclick="localStorage.removeItem('diare_patient_name'); patientSessionName=''; checkPatientSession();" class="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition">Masuk Sesi Pasien</button>
+                        ` : ''}
+                    </div>
+                    ${hintBox('Aplikasi ini <strong>bukan pengganti dokter</strong>. Jika gejala berat, segera ke fasilitas kesehatan terdekat.')}
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <button onclick="renderView('screening')" class="glass-card rounded-2xl p-5 glow text-left hover:scale-[1.02] transition-transform">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-5 h-5 text-white"></i></div>
+                                <h3 class="font-semibold text-gray-800">Cek Gejala Saya</h3>
+                            </div>
+                            <p class="text-xs text-gray-500">Jawab beberapa pertanyaan sederhana untuk mengetahui kondisi Anda</p>
+                        </button>
+                        <button onclick="renderView('ai-feses')" class="glass-card rounded-2xl p-5 glow text-left hover:scale-[1.02] transition-transform">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center"><i data-lucide="scan" class="w-5 h-5 text-white"></i></div>
+                                <h3 class="font-semibold text-gray-800">Cek Bentuk BAB</h3>
+                            </div>
+                            <p class="text-xs text-gray-500">Kenali apakah BAB Anda normal atau tanda diare</p>
+                        </button>
+                        <button onclick="renderView('faskes')" class="glass-card rounded-2xl p-5 glow text-left hover:scale-[1.02] transition-transform">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-red-500 flex items-center justify-center"><i data-lucide="map-pin" class="w-5 h-5 text-white"></i></div>
+                                <h3 class="font-semibold text-gray-800">Cari Faskes Terdekat</h3>
+                            </div>
+                            <p class="text-xs text-gray-500">Temukan Puskesmas, Klinik, atau Rumah Sakit terdekat dengan cepat</p>
+                        </button>
+                        <button onclick="renderView('education')" class="glass-card rounded-2xl p-5 glow text-left hover:scale-[1.02] transition-transform">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center"><i data-lucide="book-open" class="w-5 h-5 text-white"></i></div>
+                                <h3 class="font-semibold text-gray-800">Info Diare</h3>
+                            </div>
+                            <p class="text-xs text-gray-500">Pelajari apa itu diare dan cara mengatasinya</p>
+                        </button>
+                        <button onclick="renderView('brat-diet')" class="glass-card rounded-2xl p-5 glow text-left hover:scale-[1.02] transition-transform">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center"><i data-lucide="utensils" class="w-5 h-5 text-white"></i></div>
+                                <h3 class="font-semibold text-gray-800">Makanan Saat Diare</h3>
+                            </div>
+                            <p class="text-xs text-gray-500">Panduan apa yang boleh dan tidak boleh dimakan</p>
+                        </button>
+                    </div>
+
+                    ${screenings.length > 0 ? `
+                    <div class="glass-card rounded-2xl p-5 glow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-gray-800">📋 Pemeriksaan Terakhir Anda</h3>
+                            <button id="clear-data-btn" onclick="clearAllData()" class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 flex items-center gap-1 transition">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus Semua Data
+                            </button>
+                        </div>
+                        <div class="space-y-2">
+                            ${screenings.slice(-3).reverse().map(r=>`
+                                <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${r.risk_level==='Tinggi'?'bg-red-100 text-red-700':r.risk_level==='Sedang'?'bg-amber-100 text-amber-700':'bg-green-100 text-green-700'}">${r.risk_level}</span>
+                                    <span class="text-sm text-gray-700">${r.patient_name||'Anda'}</span>
+                                    <span class="text-xs text-gray-400 ml-auto">${r.created_at?new Date(r.created_at).toLocaleDateString('id-ID'):'-'}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>` : `
+                    <div class="glass-card rounded-2xl p-6 glow text-center">
+                        <p class="text-4xl mb-3">🏥</p>
+                        <p class="text-sm text-gray-600">Belum ada pemeriksaan. Mulai dengan <strong>"Cek Gejala Saya"</strong> di atas.</p>
+                    </div>`}
+                </div>
+            `;
+        } else {
+            const withSDKI = screenings.filter(r=>r.sdki_diagnosis).length;
+            const withSOAP = screenings.filter(r=>r.soap_assessment).length;
+            area.innerHTML = `
+                <div class="fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Dashboard ${currentRole.charAt(0).toUpperCase()+currentRole.slice(1)}</h2>
+                            <p class="text-sm text-gray-500 mt-1">Smart Gastrointestinal Assessment System</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-800">${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        ${statCard('Total Skrining', screenings.length, 'clipboard-list', 'from-teal-500 to-emerald-500')}
+                        ${statCard('Risiko Tinggi', highRisk, 'alert-triangle', 'from-orange-400 to-red-500')}
+                        ${currentRole==='perawat'?statCard('Dengan SDKI', withSDKI, 'stethoscope', 'from-purple-400 to-indigo-500'):statCard('Pasien Aktif', screenings.filter(r=>r.outcome_status!=='Tercapai').length, 'users', 'from-cyan-400 to-blue-500')}
+                        ${currentRole==='dokter'?statCard('Dievaluasi SOAP', withSOAP, 'file-text', 'from-pink-400 to-red-500'):statCard('Tercapai', screenings.filter(r=>r.outcome_status==='Tercapai').length, 'check-circle', 'from-green-400 to-emerald-600')}
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-card rounded-2xl p-6 glow">
+                            <h3 class="font-semibold text-gray-800 mb-4">Distribusi Risiko</h3>
+                            <div class="flex items-end gap-3 h-40">
+                                ${riskBar('Rendah', screenings.filter(r=>r.risk_level==='Rendah').length, screenings.length, '#10b981')}
+                                ${riskBar('Sedang', screenings.filter(r=>r.risk_level==='Sedang').length, screenings.length, '#f59e0b')}
+                                ${riskBar('Tinggi', highRisk, screenings.length, '#ef4444')}
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-6 glow">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold text-gray-800">Aktivitas Terbaru</h3>
+                                ${screenings.length > 0 ? `
+                                    <button id="clear-data-btn" onclick="clearAllData()" class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 flex items-center gap-1 transition">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i> Bersihkan Semua
+                                    </button>
+                                ` : ''}
+                            </div>
+                            <div class="space-y-3 max-h-40 overflow-y-auto">
+                                ${screenings.slice(-5).reverse().map(r=>`
+                                    <button onclick="viewPatientDetail('${r.__backendId}')" class="w-full flex items-center gap-3 p-2 rounded-lg bg-gray-50 hover:bg-teal-50 transition text-left">
+                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xs font-bold">${(r.patient_name||'?')[0]}</div>
+                                        <div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${r.patient_name||'-'}</p><p class="text-xs text-gray-400">${r.risk_level||'-'}</p></div>
+                                    </button>
+                                `).join('')||'<p class="text-sm text-gray-400 text-center py-4">Belum ada data</p>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        lucide.createIcons();
+    }
+
+    function statCard(label, value, icon, gradient) {
+        return `<div class="glass-card rounded-2xl p-5 glow hover:scale-[1.02] transition-transform">
+            <div class="flex items-center justify-between">
+                <div><p class="text-xs text-gray-500 font-medium">${label}</p><p class="text-2xl font-bold text-gray-800 mt-1">${value}</p></div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center"><i data-lucide="${icon}" class="w-5 h-5 text-white"></i></div>
+            </div>
+        </div>`;
+    }
+
+    function riskBar(label, count, total, color) {
+        const pct = total > 0 ? Math.max(5, (count/total)*100) : 5;
+        return `<div class="flex-1 flex flex-col items-center gap-2">
+            <div class="w-full rounded-t-lg" style="height:${pct}%;background:${color};min-height:8px"></div>
+            <span class="text-xs font-medium text-gray-600">${label}</span>
+            <span class="text-sm font-bold">${count}</span>
+        </div>`;
+    }
+
+    function renderScreening() {
+        const area = document.getElementById('content-area');
+        const isPasien = currentRole === 'pasien';
+        const initialName = (isPasien && patientSessionName) ? patientSessionName : '';
+        const initialGender = (isPasien && patientGender) ? patientGender : 'Laki-laki';
+        
+        // Retrieve health history values for autofill if in patient session
+        const initialAllergy = (isPasien && patientDrugAllergy) ? patientDrugAllergy : '';
+        const initialHistory = (isPasien && patientMedicalHistory) ? patientMedicalHistory : '';
+        const initialRecentMed = (isPasien && patientRecentMedication) ? patientRecentMedication : '';
+        
+        // Calculate age from birth date if present
+        let calculatedAge = '';
+        if (isPasien && patientBirthDate) {
+            const birth = new Date(patientBirthDate);
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            const m = today.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            calculatedAge = age >= 0 ? age : '';
+        }
+
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">${isPasien?'Cek Gejala Diare Anda':'Skrining Diare'}</h2>
+                ${isPasien ? hintBox('Isi formulir di bawah sesuai kondisi Anda. <strong>Jawab sejujurnya</strong> agar hasilnya akurat. Tidak perlu khawatir jika tidak tahu semua jawaban — isi yang Anda bisa saja.') : '<p class="text-sm text-gray-500 mb-4">Form pengkajian pasien</p>'}
+
+                <form id="screening-form" class="glass-card rounded-2xl p-6 glow space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div><label class="text-xs font-semibold text-gray-600 block mb-1">${isPasien?'Nama Anda':'Nama Pasien'}</label><input name="patient_name" class="w-full p-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-teal-400 text-sm" placeholder="Ketik nama lengkap" value="${initialName}" required></div>
+                        <div><label class="text-xs font-semibold text-gray-600 block mb-1">Umur (tahun)</label><input name="age" type="number" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm" placeholder="Contoh: 25" value="${calculatedAge}" required></div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-600 block mb-1">Jenis Kelamin</label>
+                            <select name="gender" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm">
+                                <option ${initialGender==='Laki-laki'?'selected':''}>Laki-laki</option>
+                                <option ${initialGender==='Perempuan'?'selected':''}>Perempuan</option>
+                            </select>
+                        </div>
+                        <div><label class="text-xs font-semibold text-gray-600 block mb-1">Berat Badan (kg)</label><input name="weight" type="number" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm" placeholder="Contoh: 60"></div>
+                        <div><label class="text-xs font-semibold text-gray-600 block mb-1">Tinggi Badan (cm)</label><input name="height" type="number" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm" placeholder="Contoh: 165"></div>
+                        <div><label class="text-xs font-semibold text-gray-600 block mb-1">${isPasien?'Keluhan Utama Anda':'Keluhan Utama'}</label><input name="chief_complaint" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm" placeholder="${isPasien?'Contoh: Perut sakit dan BAB terus':''}"></div>
+                    </div>
+
+                    <!-- Riwayat Kesehatan Section (Now in screening form) -->
+                    <div class="border-t border-teal-100 pt-4">
+                        <h3 class="font-semibold text-teal-800 text-sm mb-3">📋 Riwayat Kesehatan</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-600 block mb-1">1. Apakah ada Alergi Obat?</label>
+                                <input name="drug_allergy" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm" placeholder="Ketik ada / nama obat, atau 'Tidak ada'" value="${initialAllergy}" required>
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-gray-600 block mb-1">2. Riwayat penyakit tertentu?</label>
+                                <input name="medical_history" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm" placeholder="Contoh: Maag, Diabetes, atau 'Tidak ada'" value="${initialHistory}" required>
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-gray-600 block mb-1">3. Apakah sudah minum obat sebelum nya?</label>
+                                <input name="recent_medication" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm" placeholder="Contoh: Paracetamol, atau 'Belum ada'" value="${initialRecentMed}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-2">${isPasien?'Gejala yang Anda rasakan (centang yang sesuai)':'Gejala'}</h3>
+                        ${isPasien?'<p class="text-xs text-gray-400 mb-3">Pilih semua yang Anda alami saat ini</p>':''}
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            ${[
+                                {id:'BAB Cair', label: isPasien?'BAB encer/cair 💩':'BAB Cair'},
+                                {id:'Mual', label: isPasien?'Mual (perut terasa mau muntah) 🤢':'Mual'},
+                                {id:'Muntah', label: isPasien?'Muntah 🤮':'Muntah'},
+                                {id:'Nyeri Perut', label: isPasien?'Perut sakit/nyeri 😣':'Nyeri Perut'},
+                                {id:'Kram Perut', label: isPasien?'Perut kram/melilit':'Kram Perut'},
+                                {id:'Demam', label: isPasien?'Demam (badan panas) 🤒':'Demam'},
+                                {id:'Nafsu Makan Menurun', label: isPasien?'Tidak nafsu makan':'Nafsu Makan Menurun'},
+                                {id:'Dehidrasi', label: isPasien?'Haus terus / mulut kering 💧':'Dehidrasi'},
+                                {id:'Lemas', label: isPasien?'Badan lemas / lesu':'Lemas'},
+                                {id:'BAB Berdarah', label: isPasien?'BAB ada darahnya 🩸':'BAB Berdarah'}
+                            ].map(s=>`
+                                <label class="flex items-center gap-2 p-2.5 rounded-lg bg-gray-50 hover:bg-teal-50 cursor-pointer text-sm border border-gray-100 hover:border-teal-300 transition">
+                                    <input type="checkbox" name="symptom_${s.id}" class="rounded text-teal-600 w-4 h-4">${s.label}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-600 block mb-1">${isPasien?'Berapa kali BAB encer hari ini?':'Frekuensi BAB/hari'}</label>
+                            <input name="frequency" type="number" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm" placeholder="${isPasien?'Contoh: 5':''}">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-600 block mb-1">${isPasien?'Seberapa haus Anda?':'Status Hidrasi'}</label>
+                            <select name="hydration_status" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm">
+                                <option value="Normal">${isPasien?'Normal - tidak terlalu haus':'Normal'}</option>
+                                <option value="Dehidrasi Ringan">${isPasien?'Agak haus terus, mulut kering':'Dehidrasi Ringan'}</option>
+                                <option value="Dehidrasi Sedang">${isPasien?'Sangat haus, jarang buang air kecil':'Dehidrasi Sedang'}</option>
+                                <option value="Dehidrasi Berat">${isPasien?'Sangat lemas, pusing, mata cekung':'Dehidrasi Berat'}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    ${!isPasien ? `
+                    <h3 class="font-semibold text-gray-700 pt-2">Pemeriksaan Fisik</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div><label class="text-xs font-semibold text-gray-600 block mb-1">Suhu (°C)</label><input name="temperature" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm"></div>
+                        <div><label class="text-xs font-semibold text-gray-600 block mb-1">Nadi (x/mnt)</label><input name="pulse" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm"></div>
+                        <div><label class="text-xs font-semibold text-gray-600 block mb-1">TD (mmHg)</label><input name="blood_pressure" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm"></div>
+                        <div><label class="text-xs font-semibold text-gray-600 block mb-1">RR (x/mnt)</label><input name="respiratory_rate" class="w-full p-2.5 rounded-lg border border-gray-200 text-sm"></div>
+                    </div>
+                    ` : ''}
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold text-sm hover:shadow-lg transition flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>${isPasien?'Cek Kondisi Saya':'Simpan & Analisis'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.getElementById('screening-form').addEventListener('submit', handleScreening);
+        lucide.createIcons();
+    }
+
+    async function handleScreening(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const symptoms = [];
+        e.target.querySelectorAll('input[type=checkbox]:checked').forEach(c=>symptoms.push(c.name.replace('symptom_','')));
+        const freq = parseInt(fd.get('frequency'))||0;
+        const bloody = symptoms.includes('BAB Berdarah');
+        const dehy = fd.get('hydration_status');
+        let score = 0;
+        if(freq>=5) score+=3; else if(freq>=3) score+=2; else score+=1;
+        if(bloody) score+=3;
+        if(dehy==='Dehidrasi Berat') score+=3; else if(dehy==='Dehidrasi Sedang') score+=2; else if(dehy==='Dehidrasi Ringan') score+=1;
+        if(symptoms.includes('Demam')) score+=1;
+        if(symptoms.includes('Muntah')) score+=1;
+        const riskLevel = score>=7?'Tinggi':score>=4?'Sedang':'Rendah';
+
+        // Auto-assign SDKI & SLKI based on screening results
+        let autoSdki = 'Diare';
+        let autoSlki = 'Eliminasi Fekal';
+        let autoSlkiScore = 5;
+        let autoSiki = ''; // Biarkan kosong agar perawat dapat memilih sendiri secara manual
+
+        if (bloody) {
+            autoSdki = 'Diare';
+            autoSlki = 'Eliminasi Fekal';
+        } else if (dehy === 'Dehidrasi Berat' || dehy === 'Dehidrasi Sedang' || dehy === 'Dehidrasi Ringan') {
+            autoSdki = 'Hipovolemia';
+            autoSlki = 'Status Cairan';
+        } else if (symptoms.includes('Demam')) {
+            autoSdki = 'Hipertermia';
+            autoSlki = 'Termoregulasi';
+        } else if (symptoms.includes('Nyeri Perut') || symptoms.includes('Kram Perut')) {
+            autoSdki = 'Nyeri Akut';
+            autoSlki = 'Tingkat Nyeri';
+        } else if (symptoms.includes('Nafsu Makan Menurun')) {
+            autoSdki = 'Defisit Nutrisi';
+            autoSlki = 'Status Nutrisi';
+        }
+
+        if(allRecords.length>=999){showToast('Batas 999 data tercapai!');return;}
+        const btn = e.target.querySelector('button[type=submit]');
+        btn.disabled=true; btn.innerHTML='<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Memproses...';
+        const result = await window.dataSdk.create({
+            record_type:'screening', patient_name:fd.get('patient_name'), age:parseInt(fd.get('age'))||0,
+            gender:fd.get('gender'), weight:parseFloat(fd.get('weight'))||0, height:parseFloat(fd.get('height'))||0,
+            birth_date: (currentRole === 'pasien') ? patientBirthDate : '',
+            phone: (currentRole === 'pasien') ? patientPhone : '',
+            blood_type: (currentRole === 'pasien') ? patientBloodType : '',
+            drug_allergy: fd.get('drug_allergy') || '',
+            medical_history: fd.get('medical_history') || '',
+            recent_medication: fd.get('recent_medication') || '',
+            chief_complaint:fd.get('chief_complaint'), symptoms:symptoms.join(','), frequency:freq,
+            nausea:symptoms.includes('Mual'), vomiting:symptoms.includes('Muntah'),
+            abdominal_pain:symptoms.includes('Nyeri Perut'), fever:symptoms.includes('Demam'),
+            dehydration:dehy, bloody_stool:bloody, temperature:fd.get('temperature')||'',
+            pulse:fd.get('pulse')||'', blood_pressure:fd.get('blood_pressure')||'',
+            respiratory_rate:fd.get('respiratory_rate')||'', hydration_status:dehy,
+            risk_level:riskLevel, risk_score:score, bristol_type:0, stool_color:'',
+            sdki_diagnosis:autoSdki, slki_target:autoSlki, slki_score:autoSlkiScore, siki_interventions:autoSiki,
+            implementation_checklist:'', therapy:'', soap_subjective:'', soap_objective:'',
+            soap_assessment:'', soap_plan:'', outcome_status:'Belum Tercapai', notes:'',
+            role:currentRole, created_at:new Date().toISOString(), updated_at:new Date().toISOString()
+        });
+        btn.disabled=false; btn.innerHTML='<i data-lucide="check-circle" class="w-4 h-4"></i> '+(currentRole==='pasien'?'Cek Kondisi Saya':'Simpan & Analisis');
+        lucide.createIcons();
+        if(result.isOk){showToast('Berhasil! Lihat hasil analisis.'); renderView('risk');}
+        else showToast('Gagal menyimpan data');
+    }
+
+    function renderAIFeses() {
+        const area = document.getElementById('content-area');
+        const isPasien = currentRole === 'pasien';
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">${isPasien?'Cek Bentuk BAB Anda':'AI Deteksi Feses'}</h2>
+                ${isPasien ? hintBox('Pilih gambar yang paling mirip dengan BAB Anda hari ini. Ini membantu mengetahui apakah Anda mengalami diare dan seberapa serius kondisinya.') : '<p class="text-sm text-gray-500 mb-4">Analisis berbasis Bristol Stool Chart</p>'}
+
+                <div class="glass-card rounded-2xl p-6 glow mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="font-semibold text-gray-700 mb-3">${isPasien?'Pilih yang paling mirip:':'Pilih Tipe Bristol'}</h3>
+                            <div class="space-y-2" id="bristol-select">
+                                ${BRISTOL.map(b=>`
+                                    <button type="button" onclick="selectBristol(${b.type})" class="bristol-btn w-full text-left p-3 rounded-xl border border-gray-200 hover:border-teal-400 hover:bg-teal-50 transition flex items-center gap-3">
+                                        <span class="w-10 h-10 rounded-full flex items-center justify-center text-xl">${b.color}</span>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium">${isPasien?b.simple:b.desc}</p>
+                                            <p class="text-xs ${b.type>=6?'text-red-500':b.type>=5?'text-amber-500':'text-green-500'} font-medium">${b.risk}</p>
+                                        </div>
+                                        <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">Tipe ${b.type}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div id="bristol-result" class="flex items-center justify-center">
+                            <div class="text-center p-6">
+                                <p class="text-4xl mb-3">👆</p>
+                                <p class="text-gray-400 text-sm">${isPasien?'Pilih salah satu di samping untuk melihat hasilnya':'Pilih tipe feses untuk melihat analisis'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border-l-4 border-amber-400">
+                    <p class="text-xs text-gray-600"><strong>⚠️ Penting:</strong> Ini hanya alat bantu, bukan diagnosis dokter. Jika BAB Anda sangat cair, ada darah, atau berlangsung lebih dari 3 hari, segera ke dokter.</p>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    }
+
+    window.selectBristol = function(type) {
+        const b = BRISTOL[type-1];
+        const isPasien = currentRole === 'pasien';
+        const alerts = [];
+        if(type>=6) alerts.push('⚠️ Kondisi ini bisa berbahaya — segera minum oralit dan hubungi dokter');
+        if(type===7) alerts.push('🚨 DARURAT: Diare berat bisa menyebabkan dehidrasi serius. Segera ke rumah sakit!');
+
+        document.getElementById('bristol-result').innerHTML = `
+            <div class="w-full space-y-4 fade-in">
+                <div class="text-center p-4 rounded-xl bg-gradient-to-br from-teal-50 to-emerald-50">
+                    <p class="text-4xl mb-2">${b.color}</p>
+                    <h3 class="text-lg font-bold text-gray-800">Tipe ${b.type}</h3>
+                    <p class="text-sm text-gray-600">${isPasien?b.simple:b.desc}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="p-3 rounded-lg bg-gray-50"><p class="text-xs text-gray-500">${isPasien?'Kondisi':'Risiko'}</p><p class="text-sm font-semibold ${type>=6?'text-red-600':type>=5?'text-amber-600':'text-green-600'}">${b.risk}</p></div>
+                    <div class="p-3 rounded-lg bg-gray-50"><p class="text-xs text-gray-500">${isPasien?'Risiko Kekurangan Cairan':'Dehidrasi'}</p><p class="text-sm font-semibold">${b.dehydration}</p></div>
+                </div>
+                ${alerts.length?`<div class="p-3 rounded-lg bg-red-50 border border-red-200">${alerts.map(a=>`<p class="text-sm text-red-700 font-medium">${a}</p>`).join('')}</div>`:''}
+                <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                    <p class="text-xs text-blue-600 font-semibold mb-1">${isPasien?'💡 Yang harus Anda lakukan:':'Rekomendasi'}</p>
+                    <p class="text-sm text-blue-800">${type>=6?(isPasien?'Segera pergi ke dokter atau klinik terdekat. Sambil menunggu, minum oralit sedikit-sedikit tapi sering. Jangan makan makanan pedas atau berminyak.':'Segera konsultasi dokter. Tingkatkan asupan cairan rehidrasi oral.'):type>=5?(isPasien?'Perbanyak minum air putih atau oralit. Jika masih diare setelah 2 hari, pergi ke dokter.':'Perbanyak minum, pantau frekuensi BAB. Konsultasi jika berlanjut >2 hari.'):(isPasien?'BAB Anda normal! Tetap jaga pola makan sehat dan minum air yang cukup.':'Kondisi normal. Pertahankan pola makan sehat dan hidrasi cukup.')}</p>
+                </div>
+            </div>
+        `;
+    };
+
+    function renderRisk() {
+        const screenings = allRecords.filter(r=>r.record_type==='screening');
+        const latest = currentPatientId ? getPatientData(currentPatientId) : screenings[screenings.length-1];
+        const score = latest?.risk_score||0;
+        const level = latest?.risk_level||'Belum ada data';
+        const pct = Math.min(100, (score/10)*100);
+        const isPasien = currentRole === 'pasien';
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">${isPasien?'Hasil Pemeriksaan Anda':'AI Risk Assessment'}</h2>
+                ${isPasien && latest ? hintBox('Ini adalah hasil analisis dari gejala yang Anda isi sebelumnya. Semakin tinggi skor, semakin serius kondisinya.') : ''}
+                ${latest?`
+                <div class="glass-card rounded-2xl p-6 glow mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-700">${isPasien?'Tingkat Bahaya':'Risk Score'}</h3>
+                        <span class="px-3 py-1 rounded-full text-sm font-bold ${level==='Tinggi'?'bg-red-100 text-red-700':level==='Sedang'?'bg-amber-100 text-amber-700':'bg-green-100 text-green-700'}">${level==='Tinggi'?(isPasien?'⚠️ Serius':'Tinggi'):level==='Sedang'?(isPasien?'⚡ Perlu Perhatian':'Sedang'):(isPasien?'✓ Ringan':'Rendah')}</span>
+                    </div>
+                    <div class="text-center mb-4"><span class="text-5xl font-bold text-gray-800">${score}</span><span class="text-lg text-gray-400">/10</span></div>
+                    <div class="risk-meter"><div class="risk-indicator" style="left:calc(${pct}% - 8px)"></div></div>
+                    <div class="flex justify-between text-xs text-gray-400 mt-2"><span>${isPasien?'Ringan':'Rendah'}</span><span>Sedang</span><span>${isPasien?'Serius':'Tinggi'}</span></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="glass-card rounded-2xl p-5">
+                        <h4 class="font-semibold text-gray-700 mb-3">${isPasien?'Data Anda':'Detail Pasien'}</h4>
+                        <div class="space-y-2 text-sm">
+                            <p><span class="text-gray-400">Nama:</span> ${latest.patient_name}</p>
+                            <p><span class="text-gray-400">${isPasien?'Berapa kali BAB encer:':'Frekuensi BAB:'}</span> ${latest.frequency}x/hari</p>
+                            <p><span class="text-gray-400">${isPasien?'Kondisi cairan tubuh:':'Status Hidrasi:'}</span> ${latest.hydration_status}</p>
+                            <p><span class="text-gray-400">${isPasien?'Ada darah di BAB:':'BAB Berdarah:'}</span> ${latest.bloody_stool?'Ya':'Tidak'}</p>
+                            <p><span class="text-gray-400">Demam:</span> ${latest.fever?'Ya':'Tidak'}</p>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5">
+                        <h4 class="font-semibold text-gray-700 mb-3">${isPasien?'💡 Yang Harus Dilakukan':'Rekomendasi CDSS'}</h4>
+                        <div class="space-y-2 text-sm">
+                            ${level==='Tinggi'?`
+                                <p class="text-red-600 font-medium">🚨 ${isPasien?'Segera ke dokter/rumah sakit!':'Rujuk segera ke dokter'}</p>
+                                <p>• ${isPasien?'Minum oralit sedikit-sedikit tapi sering':'Pasang infus rehidrasi'}</p>
+                                <p>• ${isPasien?'Jangan makan makanan pedas/berminyak':'Monitor ketat tanda vital'}</p>
+                                <p>• ${isPasien?'Jika ada darah di BAB, SEGERA ke IGD':'Observasi per jam'}</p>
+                            `:level==='Sedang'?`
+                                <p class="text-amber-600 font-medium">⚡ ${isPasien?'Perlu perhatian lebih':'Monitoring intensif'}</p>
+                                <p>• ${isPasien?'Minum oralit setiap habis BAB':'Berikan ORS'}</p>
+                                <p>• ${isPasien?'Istirahat yang cukup':'Evaluasi dalam 24 jam'}</p>
+                                <p>• ${isPasien?'Jika tidak membaik dalam 2 hari, ke dokter':'Pertahankan cairan'}</p>
+                            `:`
+                                <p class="text-green-600 font-medium">✓ ${isPasien?'Bisa ditangani di rumah':'Perawatan mandiri'}</p>
+                                <p>• ${isPasien?'Minum air putih lebih banyak dari biasa':'Tingkatkan asupan cairan'}</p>
+                                <p>• ${isPasien?'Makan makanan lunak (nasi, pisang, roti)':'Diet lunak'}</p>
+                                <p>• ${isPasien?'Pantau selama 2 hari ke depan':'Observasi 48 jam'}</p>
+                            `}
+                        </div>
+                    </div>
+                </div>
+                `:'<div class="glass-card rounded-2xl p-8 glow text-center"><p class="text-4xl mb-3">📋</p><p class="text-gray-500">'+(isPasien?'Anda belum melakukan pemeriksaan. Klik <strong>"Cek Gejala Diare"</strong> di menu samping.':'Lakukan skrining terlebih dahulu')+'</p></div>'}
+            </div>
+        `;
+        lucide.createIcons();
+    }
+
+    function renderPatients() {
+        if(currentPatientId) { renderPatientWorkflow(); return; }
+        let records = allRecords.filter(r=>r.record_type==='screening');
+        if (currentRole === 'pasien' && patientSessionName) {
+            records = records.filter(r => r.patient_name && r.patient_name.toLowerCase() === patientSessionName.toLowerCase());
+        }
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">${currentRole==='pasien'?'Riwayat Pemeriksaan Saya':'Data Pasien'}</h2>
+                    ${records.length > 0 ? `
+                        <button id="clear-data-btn" onclick="clearAllData()" class="px-4 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl border border-red-200 flex items-center justify-center gap-1.5 transition">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Semua Data
+                        </button>
+                    ` : ''}
+                </div>
+                <div class="glass-card rounded-2xl overflow-hidden glow">
+                    ${records.length?`
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gradient-to-r from-teal-600 to-emerald-600 text-white">
+                                <tr><th class="p-3 text-left">Nama</th><th class="p-3">Umur</th><th class="p-3">Risiko</th><th class="p-3">Status</th><th class="p-3">Tanggal</th><th class="p-3">Aksi</th></tr>
+                            </thead>
+                            <tbody>${records.map(r=>`
+                                <tr class="border-b border-gray-100 hover:bg-teal-50 transition">
+                                    <td class="p-3 font-medium">${r.patient_name||'-'}</td>
+                                    <td class="p-3 text-center">${r.age||'-'}</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${r.risk_level==='Tinggi'?'bg-red-100 text-red-700':r.risk_level==='Sedang'?'bg-amber-100 text-amber-700':'bg-green-100 text-green-700'}">${r.risk_level}</span></td>
+                                    <td class="p-3 text-center text-xs">${r.outcome_status||'-'}</td>
+                                    <td class="p-3 text-center text-xs text-gray-400">${r.created_at?new Date(r.created_at).toLocaleDateString('id-ID'):'-'}</td>
+                                    <td class="p-3 text-center"><button onclick="viewPatientDetail('${r.__backendId}')" class="px-2 py-1 rounded-lg bg-teal-100 text-teal-700 text-xs font-semibold hover:bg-teal-200">Lihat</button></td>
+                                </tr>
+                            `).join('')}</tbody>
+                        </table>
+                    </div>`:'<p class="text-center text-gray-400 py-8">Belum ada data</p>'}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderPatientWorkflow() {
+        const patient = getPatientData(currentPatientId);
+        if(!patient) { currentPatientId = null; renderView('patients'); return; }
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <button onclick="currentPatientId=null;renderView('patients')" class="text-teal-600 text-sm font-medium mb-2 flex items-center gap-1 hover:text-teal-700"><i data-lucide="arrow-left" class="w-4 h-4"></i>Kembali</button>
+                        <h2 class="text-2xl font-bold text-gray-800">${patient.patient_name}</h2>
+                        <p class="text-sm text-gray-500 mt-1">${patient.age} tahun | ${patient.gender}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${patient.risk_level==='Tinggi'?'bg-red-100 text-red-700':patient.risk_level==='Sedang'?'bg-amber-100 text-amber-700':'bg-green-100 text-green-700'}">${patient.risk_level}</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="glass-card rounded-xl p-4 glow"><p class="text-xs text-gray-500 mb-1">Frekuensi BAB</p><p class="text-2xl font-bold text-teal-600">${patient.frequency}x</p></div>
+                    <div class="glass-card rounded-xl p-4 glow"><p class="text-xs text-gray-500 mb-1">Status Hidrasi</p><p class="text-sm font-semibold text-gray-800">${patient.hydration_status}</p></div>
+                    <div class="glass-card rounded-xl p-4 glow"><p class="text-xs text-gray-500 mb-1">Risk Score</p><p class="text-2xl font-bold text-orange-600">${patient.risk_score}/10</p></div>
+                </div>
+
+                <!-- Registration info verification box -->
+                <div class="glass-card rounded-xl p-5 mb-6 border border-gray-100 bg-white">
+                    <h3 class="text-xs font-bold text-teal-700 uppercase tracking-wider mb-2">Informasi Pendaftaran Pasien</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs mb-3">
+                        <div><span class="text-gray-400 block">No. Telepon:</span> <strong class="text-gray-800 font-semibold">${patient.phone || '-'}</strong></div>
+                        <div><span class="text-gray-400 block">Tanggal Lahir:</span> <strong class="text-gray-800 font-semibold">${patient.birth_date ? new Date(patient.birth_date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '-'}</strong></div>
+                        <div><span class="text-gray-400 block">Golongan Darah:</span> <strong class="text-gray-800 font-semibold">${patient.blood_type || '-'}</strong></div>
+                        <div><span class="text-gray-400 block">Jenis Kelamin:</span> <strong class="text-gray-800 font-semibold">${patient.gender || '-'}</strong></div>
+                    </div>
+                    <div class="border-t border-gray-100 pt-2 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                        <div><span class="text-gray-400 block">Alergi Obat:</span> <strong class="text-red-700 font-semibold">${patient.drug_allergy || 'Tidak ada'}</strong></div>
+                        <div><span class="text-gray-400 block">Riwayat Penyakit:</span> <strong class="text-gray-800 font-semibold">${patient.medical_history || 'Tidak ada'}</strong></div>
+                        <div><span class="text-gray-400 block">Obat Sebelumnya:</span> <strong class="text-gray-800 font-semibold">${patient.recent_medication || 'Belum ada'}</strong></div>
+                    </div>
+                </div>
+                ${currentRole === 'perawat' ? `
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Pengkajian Keperawatan</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${['sdki|Diagnosa SDKI|'+patient.sdki_diagnosis,'slki|Luaran SLKI|'+patient.slki_target,'siki|Intervensi SIKI|'+patient.siki_interventions,'implementation|Implementasi|'+patient.implementation_checklist].map(x=>{const[f,l,v]=x.split('|');return`
+                            <button onclick="editPatientField('${patient.__backendId}','${f}')" class="glass-card rounded-xl p-4 glow text-left hover:border-teal-400 transition">
+                                <div class="flex items-center justify-between"><div><p class="text-xs text-gray-500 mb-1">${l}</p><p class="text-sm font-medium text-gray-700">${v||'Belum diisi'}</p></div><i data-lucide="edit-2" class="w-4 h-4 text-teal-600"></i></div>
+                            </button>`;}).join('')}
+                    </div>
+                </div>
+                ` : currentRole === 'dokter' ? `
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Terapi & Monitoring</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button onclick="editPatientField('${patient.__backendId}','therapy')" class="glass-card rounded-xl p-4 glow text-left hover:border-teal-400 transition"><div class="flex items-center justify-between"><div><p class="text-xs text-gray-500 mb-1">Terapi Farmakologis</p><p class="text-sm font-medium text-gray-700">${patient.therapy||'Belum diisi'}</p></div><i data-lucide="edit-2" class="w-4 h-4 text-teal-600"></i></div></button>
+                        <button onclick="editPatientField('${patient.__backendId}','outcome')" class="glass-card rounded-xl p-4 glow text-left hover:border-teal-400 transition"><div class="flex items-center justify-between"><div><p class="text-xs text-gray-500 mb-1">Status Outcome</p><p class="text-sm font-medium text-gray-700">${patient.outcome_status||'Belum Tercapai'}</p></div><i data-lucide="edit-2" class="w-4 h-4 text-teal-600"></i></div></button>
+                    </div>
+                </div>
+                ` : ''}
+                <div class="glass-card rounded-xl p-4 glow mt-4">
+                    <button onclick="editPatientField('${patient.__backendId}','soap')" class="flex items-center justify-between w-full"><div class="text-left"><p class="text-xs text-gray-500 mb-1">Evaluasi SOAP</p><p class="text-sm font-medium text-gray-700">${patient.soap_assessment||'Belum dievaluasi'}</p></div><i data-lucide="edit-2" class="w-4 h-4 text-teal-600"></i></button>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    }
+
+    function editPatientField(patientId, field) {
+        const patient = getPatientData(patientId);
+        if(!patient) return;
+        const area = document.getElementById('content-area');
+        const backBtn = `<button onclick="viewPatientDetail('${patientId}')" class="text-teal-600 text-sm font-medium mb-4 flex items-center gap-1 hover:text-teal-700"><i data-lucide="arrow-left" class="w-4 h-4"></i>Kembali</button>`;
+
+        if(field === 'sdki') {
+            area.innerHTML = `
+                <div class="fade-in">
+                    ${backBtn}
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Diagnosa Keperawatan (SDKI)</h2>
+                    <p class="text-sm text-gray-500 mb-4">Sesuai Standar Diagnosis Keperawatan Indonesia (3S PPNI)</p>
+                    <form id="edit-form" class="space-y-4">
+                        <div class="glass-card rounded-xl p-4 glow space-y-3">
+                            ${SDKI_LIST.map(d=>`
+                                <label class="block p-4 rounded-xl border cursor-pointer transition ${patient.sdki_diagnosis === d.name ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-white hover:border-teal-300'}">
+                                    <div class="flex items-start gap-3">
+                                        <input type="radio" name="sdki" value="${d.name}" ${patient.sdki_diagnosis === d.name ? 'checked' : ''} class="mt-1 text-teal-600">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-100 text-teal-800">${d.code}</span>
+                                                <span class="text-sm font-bold text-gray-800">${d.name}</span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-1 italic">"${d.def}"</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            `).join('')}
+                        </div>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold hover:shadow-lg transition">Simpan Diagnosis</button>
+                    </form>
+                </div>
+            `;
+            document.getElementById('edit-form').addEventListener('submit', async(e)=>{
+                e.preventDefault();
+                const btn=e.target.querySelector('button[type=submit]');
+                btn.disabled=true;
+                btn.textContent='Menyimpan...';
+                const updated={...patient,sdki_diagnosis:document.querySelector('input[name=sdki]:checked')?.value||'',updated_at:new Date().toISOString()};
+                const result=await window.dataSdk.update(updated);
+                btn.disabled=false;
+                btn.textContent='Simpan';
+                if(result.isOk){
+                    showToast('SDKI berhasil disimpan!');
+                    viewPatientDetail(patientId);
+                } else showToast('Gagal menyimpan');
+            });
+        } else if(field === 'slki') {
+            area.innerHTML = `
+                <div class="fade-in">
+                    ${backBtn}
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Luaran Keperawatan (SLKI)</h2>
+                    <p class="text-sm text-gray-500 mb-4">Sesuai Standar Luaran Keperawatan Indonesia (3S PPNI). Pilih salah satu Luaran & tentukan target skor.</p>
+                    <form id="edit-form" class="space-y-6">
+                        <div class="glass-card rounded-xl p-5 glow space-y-4">
+                            <label class="block text-sm font-semibold text-gray-700">Pilih Luaran SLKI:</label>
+                            <div class="grid grid-cols-1 gap-3">
+                                ${SLKI_LIST.map(s => `
+                                    <label class="block p-4 rounded-xl border cursor-pointer transition ${patient.slki_target === s.name ? 'border-teal-500 bg-teal-50/50' : 'border-gray-100 bg-white hover:border-teal-300'}">
+                                        <div class="flex items-start gap-3">
+                                            <input type="radio" name="slki_target" value="${s.name}" ${patient.slki_target === s.name ? 'checked' : ''} class="mt-1 text-teal-600" required>
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-100 text-teal-800">${s.code}</span>
+                                                    <span class="text-sm font-bold text-gray-800">${s.name}</span>
+                                                </div>
+                                                <p class="text-xs text-gray-500 mt-1">"${s.def}"</p>
+                                                <div class="mt-2 text-xs text-gray-400 font-medium">Indikator: ${s.indicators.join(', ')}</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="glass-card rounded-xl p-5 glow">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">Tentukan Skala Target Luaran (1 - 5):</label>
+                            <p class="text-xs text-gray-400 mb-4">Pilih salah satu skala indikator untuk target luaran pasien:</p>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-50 text-gray-600 uppercase text-xs">
+                                            <th class="p-3 font-semibold border-b">Skala</th>
+                                            <th class="p-3 font-semibold border-b text-center">Pilih Target</th>
+                                            <th class="p-3 font-semibold border-b">Definisi/Kondisi Klinis</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        ${[
+                                            {v: 1, label: 'Skala 1', desc: 'Memburuk (Kondisi klinis sangat tidak adekuat / keluhan sangat meningkat)'},
+                                            {v: 2, label: 'Skala 2', desc: 'Cukup Memburuk (Perbaikan klinis minim / keluhan masih cukup tinggi)'},
+                                            {v: 3, label: 'Skala 3', desc: 'Sedang (Kondisi klinis cukup stabil / di batas ambang toleransi)'},
+                                            {v: 4, label: 'Skala 4', desc: 'Cukup Membaik (Hampir memenuhi kondisi normal / keluhan minimal)'},
+                                            {v: 5, label: 'Skala 5', desc: 'Membaik (Kondisi ideal tercapai sepenuhnya / bebas keluhan)'}
+                                        ].map(scale => `
+                                            <tr class="hover:bg-teal-50/50 transition">
+                                                <td class="p-3 font-medium text-gray-800">${scale.label}</td>
+                                                <td class="p-3 text-center">
+                                                    <input type="radio" name="slki_score" value="${scale.v}" ${parseInt(patient.slki_score || 1) === scale.v ? 'checked' : ''} class="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500 rounded">
+                                                </td>
+                                                <td class="p-3 text-xs text-gray-600">${scale.desc}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold hover:shadow-lg transition">Simpan Target Luaran</button>
+                    </form>
+                </div>
+            `;
+            document.getElementById('edit-form').addEventListener('submit', async(e)=>{
+                e.preventDefault();
+                const fd=new FormData(e.target);
+                const btn=e.target.querySelector('button[type=submit]');
+                btn.disabled=true;
+                btn.textContent='Menyimpan...';
+                const updated={...patient,slki_target:fd.get('slki_target')||'',slki_score:parseInt(fd.get('slki_score'))||1,updated_at:new Date().toISOString()};
+                const result=await window.dataSdk.update(updated);
+                btn.disabled=false;
+                btn.textContent='Simpan';
+                if(result.isOk){
+                    showToast('SLKI berhasil disimpan!');
+                    viewPatientDetail(patientId);
+                } else showToast('Gagal menyimpan');
+            });
+        } else if(field === 'siki') {
+            area.innerHTML = `
+                <div class="fade-in">
+                    ${backBtn}
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Intervensi Keperawatan (SIKI)</h2>
+                    <p class="text-sm text-gray-500 mb-4">Sesuai Standar Intervensi Keperawatan Indonesia (3S PPNI). Pilih tindakan taktis di bawah ini.</p>
+                    
+                    <div class="space-y-6">
+                        ${SIKI_LIST.map(s => `
+                            <div class="glass-card rounded-2xl p-5 glow border border-gray-100">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-100 text-teal-800">${s.code}</span>
+                                    <h3 class="font-bold text-gray-800 text-base">${s.name}</h3>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-4 italic">"${s.def}"</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                                        <p class="text-xs font-bold text-teal-800 mb-2 uppercase tracking-wider">👁️ Observasi</p>
+                                        <div class="space-y-2">
+                                            ${s.obs.map(o => `
+                                                <label class="flex items-start gap-2.5 cursor-pointer">
+                                                    <input type="checkbox" class="siki-check rounded text-teal-600 mt-0.5" value="${o}" ${(patient.siki_interventions || '').includes(o) ? 'checked' : ''}>
+                                                    <span class="text-xs text-gray-700">${o}</span>
+                                                </label>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                                        <p class="text-xs font-bold text-emerald-800 mb-2 uppercase tracking-wider">🛠️ Terapeutik</p>
+                                        <div class="space-y-2">
+                                            ${s.tera.map(t => `
+                                                <label class="flex items-start gap-2.5 cursor-pointer">
+                                                    <input type="checkbox" class="siki-check rounded text-emerald-600 mt-0.5" value="${t}" ${(patient.siki_interventions || '').includes(t) ? 'checked' : ''}>
+                                                    <span class="text-xs text-gray-700">${t}</span>
+                                                </label>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                                        <p class="text-xs font-bold text-cyan-800 mb-2 uppercase tracking-wider">📢 Edukasi</p>
+                                        <div class="space-y-2">
+                                            ${s.edu.map(ed => `
+                                                <label class="flex items-start gap-2.5 cursor-pointer">
+                                                    <input type="checkbox" class="siki-check rounded text-cyan-600 mt-0.5" value="${ed}" ${(patient.siki_interventions || '').includes(ed) ? 'checked' : ''}>
+                                                    <span class="text-xs text-gray-700">${ed}</span>
+                                                </label>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                                        <p class="text-xs font-bold text-purple-800 mb-2 uppercase tracking-wider">🤝 Kolaborasi</p>
+                                        <div class="space-y-2">
+                                            ${s.kol.map(k => `
+                                                <label class="flex items-start gap-2.5 cursor-pointer">
+                                                    <input type="checkbox" class="siki-check rounded text-purple-600 mt-0.5" value="${k}" ${(patient.siki_interventions || '').includes(k) ? 'checked' : ''}>
+                                                    <span class="text-xs text-gray-700">${k}</span>
+                                                </label>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button onclick="saveSIKI('${patientId}')" class="mt-6 px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold hover:shadow-lg transition">Simpan Intervensi SIKI</button>
+                </div>
+            `;
+        } else if(field === 'implementation') {
+            const actions=['Kaji frekuensi dan konsistensi BAB','Monitor tanda-tanda dehidrasi','Berikan cairan rehidrasi oral','Timbang berat badan harian','Pantau intake dan output cairan','Berikan diet lunak rendah serat','Edukasi pencegahan diare','Jaga kebersihan perianal','Kolaborasi pemberian obat','Dokumentasikan respon pasien'];
+            area.innerHTML = `<div class="fade-in">${backBtn}<h2 class="text-2xl font-bold text-gray-800 mb-4">Implementasi</h2><div class="glass-card rounded-xl p-6 glow space-y-3">${actions.map(a=>`<label class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-teal-300 hover:bg-teal-50 transition cursor-pointer"><input type="checkbox" class="impl-check rounded text-teal-600 w-5 h-5" value="${a}" ${(patient.implementation_checklist||'').includes(a)?'checked':''}><span class="text-sm text-gray-700 flex-1">${a}</span></label>`).join('')}</div><button onclick="saveImplementation('${patientId}')" class="mt-4 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold">Simpan</button></div>`;
+        } else if(field === 'therapy') {
+            area.innerHTML = `<div class="fade-in">${backBtn}<h2 class="text-2xl font-bold text-gray-800 mb-4">Terapi Farmakologis</h2><form id="edit-form" class="glass-card rounded-xl p-6 glow space-y-4"><div><label class="text-sm font-semibold text-gray-700 block mb-2">Rencana Terapi</label><textarea name="therapy" rows="5" class="w-full p-3 rounded-lg border border-gray-200 text-sm" placeholder="Tulis rencana terapi...">${patient.therapy||''}</textarea></div><button type="submit" class="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold">Simpan</button></form></div>`;
+            document.getElementById('edit-form').addEventListener('submit', async(e)=>{e.preventDefault();const fd=new FormData(e.target);const btn=e.target.querySelector('button[type=submit]');btn.disabled=true;btn.textContent='Menyimpan...';const updated={...patient,therapy:fd.get('therapy'),updated_at:new Date().toISOString()};const result=await window.dataSdk.update(updated);btn.disabled=false;btn.textContent='Simpan';if(result.isOk){showToast('Terapi tersimpan!');viewPatientDetail(patientId);}else showToast('Gagal menyimpan');});
+        } else if(field === 'outcome') {
+            area.innerHTML = `<div class="fade-in">${backBtn}<h2 class="text-2xl font-bold text-gray-800 mb-4">Status Outcome</h2><form id="edit-form" class="glass-card rounded-xl p-6 glow space-y-4"><div class="space-y-2">${['Belum Tercapai','Proses','Tercapai'].map(s=>`<label class="flex items-center gap-3 p-3 rounded-lg hover:bg-teal-50 cursor-pointer border ${patient.outcome_status===s?'border-teal-400 bg-teal-50':'border-gray-100'}"><input type="radio" name="outcome" value="${s}" ${patient.outcome_status===s?'checked':''} class="text-teal-600"><span class="text-sm font-medium">${s}</span></label>`).join('')}</div><button type="submit" class="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold">Simpan</button></form></div>`;
+            document.getElementById('edit-form').addEventListener('submit', async(e)=>{e.preventDefault();const fd=new FormData(e.target);const btn=e.target.querySelector('button[type=submit]');btn.disabled=true;btn.textContent='Menyimpan...';const updated={...patient,outcome_status:fd.get('outcome'),updated_at:new Date().toISOString()};const result=await window.dataSdk.update(updated);btn.disabled=false;btn.textContent='Simpan';if(result.isOk){showToast('Outcome tersimpan!');viewPatientDetail(patientId);}else showToast('Gagal menyimpan');});
+        } else if(field === 'soap') {
+            area.innerHTML = `<div class="fade-in">${backBtn}<h2 class="text-2xl font-bold text-gray-800 mb-4">Evaluasi SOAP</h2><form id="edit-form" class="glass-card rounded-xl p-6 glow space-y-4"><div><label class="text-sm font-semibold text-gray-700 block mb-1">S - Subjective</label><textarea name="subjective" rows="3" class="w-full p-3 rounded-lg border border-gray-200 text-sm">${patient.soap_subjective||''}</textarea></div><div><label class="text-sm font-semibold text-gray-700 block mb-1">O - Objective</label><textarea name="objective" rows="3" class="w-full p-3 rounded-lg border border-gray-200 text-sm">${patient.soap_objective||''}</textarea></div><div><label class="text-sm font-semibold text-gray-700 block mb-1">A - Assessment</label><textarea name="assessment" rows="3" class="w-full p-3 rounded-lg border border-gray-200 text-sm">${patient.soap_assessment||''}</textarea></div><div><label class="text-sm font-semibold text-gray-700 block mb-1">P - Plan</label><textarea name="plan" rows="3" class="w-full p-3 rounded-lg border border-gray-200 text-sm">${patient.soap_plan||''}</textarea></div><button type="submit" class="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold">Simpan SOAP</button></form></div>`;
+            document.getElementById('edit-form').addEventListener('submit', async(e)=>{e.preventDefault();const fd=new FormData(e.target);const btn=e.target.querySelector('button[type=submit]');btn.disabled=true;btn.textContent='Menyimpan...';const updated={...patient,soap_subjective:fd.get('subjective'),soap_objective:fd.get('objective'),soap_assessment:fd.get('assessment'),soap_plan:fd.get('plan'),updated_at:new Date().toISOString()};const result=await window.dataSdk.update(updated);btn.disabled=false;btn.textContent='Simpan SOAP';if(result.isOk){showToast('SOAP tersimpan!');viewPatientDetail(patientId);}else showToast('Gagal menyimpan');});
+        }
+        lucide.createIcons();
+    }
+
+    window.saveSIKI = async function(patientId) {
+        const patient = getPatientData(patientId);
+        const selected = Array.from(document.querySelectorAll('.siki-check:checked')).map(el=>el.value);
+        const updated = {...patient, siki_interventions: selected.join('|'), updated_at: new Date().toISOString()};
+        const result = await window.dataSdk.update(updated);
+        if(result.isOk) { showToast('SIKI tersimpan!'); viewPatientDetail(patientId); } else showToast('Gagal menyimpan');
+    };
+
+    window.saveImplementation = async function(patientId) {
+        const patient = getPatientData(patientId);
+        const selected = Array.from(document.querySelectorAll('.impl-check:checked')).map(el=>el.value);
+        const updated = {...patient, implementation_checklist: selected.join('|'), updated_at: new Date().toISOString()};
+        const result = await window.dataSdk.update(updated);
+        if(result.isOk) { showToast('Implementasi tersimpan!'); viewPatientDetail(patientId); } else showToast('Gagal menyimpan');
+    };
+
+    function renderSDKI() {
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Daftar Diagnosis Keperawatan (SDKI)</h2>
+                <p class="text-sm text-gray-500 mb-6">5 Diagnosis Prioritas Kasus Gastrointestinal / Diare sesuai buku 3S PPNI</p>
+                <div class="grid grid-cols-1 gap-4">
+                    ${SDKI_LIST.map((d, i) => `
+                        <div class="glass-card rounded-2xl p-5 glow border border-gray-100">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                                    ${i+1}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-800">${d.code}</span>
+                                        <h3 class="font-bold text-gray-800 text-base">${d.name}</h3>
+                                    </div>
+                                    <p class="text-sm text-gray-600 italic">Definisi: "${d.def}"</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderSLKI() {
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Daftar Luaran Keperawatan (SLKI)</h2>
+                <p class="text-sm text-gray-500 mb-6">Kriteria Hasil & Indikator Standar Luaran Keperawatan Indonesia (3S PPNI)</p>
+                <div class="space-y-4">
+                    ${SLKI_LIST.map((s, i) => `
+                        <div class="glass-card rounded-2xl p-5 glow border border-gray-100">
+                            <div class="flex items-start gap-3 mb-3">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-800">${s.code}</span>
+                                <h3 class="font-bold text-gray-800 text-base">${s.name}</h3>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-4 italic">"Definisi: ${s.def}"</p>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-gray-50 text-gray-600 uppercase">
+                                            <th class="p-2.5 font-semibold border-b">Indikator</th>
+                                            <th class="p-2.5 font-semibold border-b text-center">Skala 1 (Memburuk)</th>
+                                            <th class="p-2.5 font-semibold border-b text-center">Skala 2</th>
+                                            <th class="p-2.5 font-semibold border-b text-center">Skala 3 (Sedang)</th>
+                                            <th class="p-2.5 font-semibold border-b text-center">Skala 4</th>
+                                            <th class="p-2.5 font-semibold border-b text-center text-teal-700 font-bold bg-teal-50">Skala 5 (Membaik)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        ${s.indicators.map(ind => `
+                                            <tr class="hover:bg-teal-50/30 transition">
+                                                <td class="p-2.5 font-medium text-gray-700">${ind}</td>
+                                                <td class="p-2.5 text-center text-gray-400">▢</td>
+                                                <td class="p-2.5 text-center text-gray-400">▢</td>
+                                                <td class="p-2.5 text-center text-gray-400">▢</td>
+                                                <td class="p-2.5 text-center text-gray-400">▢</td>
+                                                <td class="p-2.5 text-center text-teal-600 font-bold bg-teal-50/40">☑</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderSIKI() {
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Daftar Intervensi Keperawatan (SIKI)</h2>
+                <p class="text-sm text-gray-500 mb-6">Tindakan Keperawatan Komprehensif Sesuai Standar Intervensi Keperawatan Indonesia (3S PPNI)</p>
+                <div class="space-y-6">
+                    ${SIKI_LIST.map((s) => `
+                        <div class="glass-card rounded-2xl p-5 glow border border-gray-100">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-800">${s.code}</span>
+                                <h3 class="font-bold text-gray-800 text-base">${s.name}</h3>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-4 italic">"Definisi: ${s.def}"</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                                    <p class="text-xs font-bold text-teal-800 mb-2 uppercase tracking-wider">👁️ Observasi</p>
+                                    <ul class="space-y-1 text-xs text-gray-600 list-disc list-inside">
+                                        ${s.obs.map(o => `<li>${o}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                                    <p class="text-xs font-bold text-emerald-800 mb-2 uppercase tracking-wider">🛠️ Terapeutik</p>
+                                    <ul class="space-y-1 text-xs text-gray-600 list-disc list-inside">
+                                        ${s.tera.map(t => `<li>${t}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                                    <p class="text-xs font-bold text-cyan-800 mb-2 uppercase tracking-wider">📢 Edukasi</p>
+                                    <ul class="space-y-1 text-xs text-gray-600 list-disc list-inside">
+                                        ${s.edu.map(ed => `<li>${ed}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100">
+                                    <p class="text-xs font-bold text-purple-800 mb-2 uppercase tracking-wider">🤝 Kolaborasi</p>
+                                    <ul class="space-y-1 text-xs text-gray-600 list-disc list-inside">
+                                        ${s.kol.map(k => `<li>${k}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderImplementation() {
+        const actions=['Kaji frekuensi dan konsistensi BAB','Monitor tanda-tanda dehidrasi','Berikan cairan rehidrasi oral','Timbang berat badan harian','Pantau intake dan output cairan','Berikan diet lunak rendah serat','Edukasi pencegahan diare','Jaga kebersihan perianal','Kolaborasi pemberian obat','Dokumentasikan respon pasien'];
+        const area = document.getElementById('content-area');
+        area.innerHTML = `<div class="fade-in"><h2 class="text-2xl font-bold text-gray-800 mb-6">Implementasi Keperawatan</h2><div class="glass-card rounded-2xl p-6 glow"><div class="space-y-3">${actions.map(a=>`<label class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-teal-300 hover:bg-teal-50 transition cursor-pointer"><input type="checkbox" class="rounded text-teal-600 w-5 h-5"><span class="text-sm text-gray-700 flex-1">${a}</span></label>`).join('')}</div><button onclick="showToast('Implementasi tersimpan!')" class="mt-4 px-5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold">Simpan Checklist</button></div></div>`;
+    }
+
+    function renderOutcome() {
+        const screenings = allRecords.filter(r=>r.record_type==='screening');
+        const tercapai = screenings.filter(r=>r.outcome_status==='Tercapai').length;
+        const proses = screenings.filter(r=>r.outcome_status==='Proses').length;
+        const belum = screenings.filter(r=>r.outcome_status==='Belum Tercapai').length;
+        const total = screenings.length || 1;
+        const area = document.getElementById('content-area');
+        area.innerHTML = `<div class="fade-in"><h2 class="text-2xl font-bold text-gray-800 mb-6">Outcome Tracking</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">${[{label:'Tercapai',count:tercapai,color:'#10b981'},{label:'Proses',count:proses,color:'#f59e0b'},{label:'Belum',count:belum,color:'#ef4444'}].map(o=>{const pct=Math.round((o.count/total)*100);return`<div class="glass-card rounded-2xl p-6 glow text-center"><svg width="80" height="80" class="mx-auto progress-ring"><circle cx="40" cy="40" r="32" fill="none" stroke="#e5e7eb" stroke-width="6"/><circle cx="40" cy="40" r="32" fill="none" stroke="${o.color}" stroke-width="6" stroke-dasharray="${2*Math.PI*32}" stroke-dashoffset="${2*Math.PI*32*(1-pct/100)}" stroke-linecap="round"/></svg><p class="text-2xl font-bold mt-2" style="color:${o.color}">${pct}%</p><p class="text-xs text-gray-500">${o.label} (${o.count})</p></div>`;}).join('')}</div></div>`;
+    }
+
+    function renderSOAP() {
+        const area = document.getElementById('content-area');
+        area.innerHTML = `<div class="fade-in"><h2 class="text-2xl font-bold text-gray-800 mb-6">Evaluasi SOAP</h2><form id="soap-form" class="glass-card rounded-2xl p-6 glow space-y-4">${['Subjective|Keluhan pasien saat ini','Objective|Data objektif pemeriksaan','Assessment|Analisis dan diagnosis','Plan|Rencana tindak lanjut'].map(s=>{const[l,p]=s.split('|');return`<div><label class="text-sm font-semibold text-gray-700 block mb-1">${l}</label><textarea name="${l.toLowerCase()}" rows="3" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-400 text-sm" placeholder="${p}"></textarea></div>`;}).join('')}<button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold">Simpan SOAP</button></form></div>`;
+        document.getElementById('soap-form').addEventListener('submit', (e)=>{e.preventDefault();showToast('SOAP tersimpan!');});
+    }
+
+    function renderTherapy() {
+        const meds=[{name:'Oralit (Cairan Rehidrasi)',dose:'200ml',freq:'Setiap BAB cair',route:'Diminum',duration:'Sampai diare berhenti',side:'Mual ringan',simple:'Minuman pengganti cairan tubuh yang hilang'},
+            {name:'Zinc 20mg',dose:'20mg',freq:'1x/hari',route:'Diminum',duration:'10 hari',side:'Mual',simple:'Vitamin mineral untuk mempercepat penyembuhan'},
+            {name:'Probiotik',dose:'1 kapsul',freq:'2x/hari',route:'Diminum',duration:'5-7 hari',side:'Kembung ringan',simple:'Bakteri baik untuk kesehatan usus'},
+            {name:'Ondansetron (Anti Mual)',dose:'4mg',freq:'3x/hari',route:'Diminum/Suntik',duration:'Sesuai kebutuhan',side:'Sakit kepala',simple:'Obat untuk menghentikan mual dan muntah'},
+            {name:'Paracetamol (Penurun Demam)',dose:'500mg',freq:'3x/hari',route:'Diminum',duration:'Jika demam',side:'Gangguan hepar',simple:'Obat penurun demam dan pereda nyeri'}];
+        const area = document.getElementById('content-area');
+        area.innerHTML = `<div class="fade-in"><h2 class="text-2xl font-bold text-gray-800 mb-6">Terapi Farmakologis</h2><div class="space-y-4">${meds.map(m=>`<div class="glass-card rounded-2xl p-5 glow"><div class="flex items-center justify-between mb-2"><h3 class="font-semibold text-gray-800">${m.name}</h3><span class="px-2 py-0.5 rounded-full text-xs bg-teal-100 text-teal-700">${m.route}</span></div><p class="text-xs text-gray-500 mb-3">${m.simple}</p><div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm"><div><p class="text-xs text-gray-400">Dosis</p><p class="font-medium">${m.dose}</p></div><div><p class="text-xs text-gray-400">Frekuensi</p><p class="font-medium">${m.freq}</p></div><div><p class="text-xs text-gray-400">Durasi</p><p class="font-medium">${m.duration}</p></div><div><p class="text-xs text-gray-400">Efek Samping</p><p class="font-medium">${m.side}</p></div></div></div>`).join('')}</div></div>`;
+    }
+
+    function renderReport() {
+        const screenings = allRecords.filter(r=>r.record_type==='screening');
+        const area = document.getElementById('content-area');
+        
+        const highRisk = screenings.filter(r=>r.risk_level==='Tinggi').length;
+        const medRisk = screenings.filter(r=>r.risk_level==='Sedang').length;
+        const lowRisk = screenings.filter(r=>r.risk_level==='Rendah').length;
+        const resolved = screenings.filter(r=>r.outcome_status==='Tercapai').length;
+
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Laporan Pemantauan Klinis</h2>
+                <div class="glass-card rounded-2xl p-6 glow">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-100">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg">Ringkasan Statistik Sistem</h3>
+                            <p class="text-xs text-gray-500">Dicetak pada: ${new Date().toLocaleString('id-ID', {day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'})}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="shareViaWhatsApp()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition">
+                                <i data-lucide="share-2" class="w-4 h-4"></i> Bagikan ke WhatsApp
+                            </button>
+                            <button onclick="printClinicalReport()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition">
+                                <i data-lucide="printer" class="w-4 h-4"></i> Cetak Laporan Resmi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                        <div class="p-4 rounded-xl bg-teal-50 border border-teal-100 text-center">
+                            <p class="text-2xl font-bold text-teal-700">${screenings.length}</p>
+                            <p class="text-xs text-teal-600 font-medium mt-1">Total Pasien</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-red-50 border border-red-100 text-center">
+                            <p class="text-2xl font-bold text-red-700">${highRisk}</p>
+                            <p class="text-xs text-red-600 font-medium mt-1">Risiko Tinggi</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-amber-50 border border-amber-100 text-center">
+                            <p class="text-2xl font-bold text-amber-700">${medRisk}</p>
+                            <p class="text-xs text-amber-600 font-medium mt-1">Risiko Sedang</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-green-50 border border-green-100 text-center">
+                            <p class="text-2xl font-bold text-green-700">${lowRisk}</p>
+                            <p class="text-xs text-green-600 font-medium mt-1">Risiko Rendah</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-blue-50 border border-blue-100 text-center">
+                            <p class="text-2xl font-bold text-blue-700">${resolved}</p>
+                            <p class="text-xs text-blue-600 font-medium mt-1">Selesai/Tercapai</p>
+                        </div>
+                    </div>
+
+                    <!-- Patient Records List -->
+                    <h4 class="font-bold text-gray-800 text-sm mb-3">Daftar Log Pasien Terdaftar</h4>
+                    <div class="overflow-x-auto rounded-xl border border-gray-100">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-600 text-xs uppercase">
+                                <tr>
+                                    <th class="p-3">Nama Pasien</th>
+                                    <th class="p-3">Umur</th>
+                                    <th class="p-3">Risiko</th>
+                                    <th class="p-3">Suhu</th>
+                                    <th class="p-3">Diagnosis (SDKI)</th>
+                                    <th class="p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${screenings.map(r => `
+                                    <tr class="hover:bg-teal-50/20 transition">
+                                        <td class="p-3 font-semibold text-gray-800">${r.patient_name || '-'}</td>
+                                        <td class="p-3">${r.age || '-'} th</td>
+                                        <td class="p-3">
+                                            <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${r.risk_level==='Tinggi'?'bg-red-100 text-red-700':r.risk_level==='Sedang'?'bg-amber-100 text-amber-700':'bg-green-100 text-green-700'}">${r.risk_level}</span>
+                                        </td>
+                                        <td class="p-3">${r.temperature ? r.temperature + ' °C' : '-'}</td>
+                                        <td class="p-3 text-xs truncate max-w-[150px]">${r.sdki_diagnosis || '<span class="text-gray-400">Belum didiagnosis</span>'}</td>
+                                        <td class="p-3"><span class="text-xs font-semibold ${r.outcome_status==='Tercapai'?'text-green-600':'text-gray-500'}">${r.outcome_status || 'Belum Tercapai'}</span></td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="6" class="p-4 text-center text-gray-400">Belum ada data pemeriksaan masuk.</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    }
+
+    window.printClinicalReport = function() {
+        const screenings = allRecords.filter(r=>r.record_type==='screening');
+        const highRisk = screenings.filter(r=>r.risk_level==='Tinggi').length;
+        const medRisk = screenings.filter(r=>r.risk_level==='Sedang').length;
+        const lowRisk = screenings.filter(r=>r.risk_level==='Rendah').length;
+        const resolved = screenings.filter(r=>r.outcome_status==='Tercapai').length;
+
+        // Create temporary iframe for professional print layout
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            showToast('Mohon izinkan pop-up untuk mencetak laporan');
+            return;
+        }
+
+        const dateStr = new Date().toLocaleString('id-ID', {day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'});
+        
+        let tableRows = screenings.map(r => `
+            <tr>
+                <td><strong>${r.patient_name || '-'}</strong></td>
+                <td style="text-align: center;">${r.age || '-'} th</td>
+                <td style="text-align: center;"><span style="padding: 2px 8px; border-radius: 4px; font-weight: bold; background: ${r.risk_level==='Tinggi'?'#fee2e2; color:#b91c1c':r.risk_level==='Sedang'?'#fef3c7; color:#b45309':'#d1fae5; color:#047857'}">${r.risk_level}</span></td>
+                <td style="text-align: center;">${r.temperature ? r.temperature + ' °C' : '-'}</td>
+                <td>${r.sdki_diagnosis || '-'}</td>
+                <td>${r.slki_target || '-'} (Skala: ${r.slki_score || '-'})</td>
+                <td style="font-weight: bold; color: ${r.outcome_status==='Tercapai'?'#047857':'#4b5563'}">${r.outcome_status || 'Belum Tercapai'}</td>
+            </tr>
+        `).join('');
+
+        if (screenings.length === 0) {
+            tableRows = '<tr><td colspan="7" style="text-align: center; color: #9ca3af; padding: 20px;">Tidak ada data pemeriksaan yang terdaftar dalam sistem.</td></tr>';
+        }
+
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Laporan Resmi Pemantauan Klinis Diare</title>
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1f2937; line-height: 1.5; padding: 40px; }
+                    .header { text-align: center; border-bottom: 3px double #0d5c63; padding-bottom: 20px; margin-bottom: 30px; }
+                    .header h1 { margin: 0; color: #0d5c63; font-size: 26px; text-transform: uppercase; letter-spacing: 1px; }
+                    .header p { margin: 5px 0 0 0; color: #4b5563; font-size: 14px; }
+                    .meta-info { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 13px; color: #4b5563; background: #f3f4f6; padding: 12px 20px; border-radius: 8px; }
+                    .stats-grid { display: grid; grid-template-cols: repeat(5, 1fr); gap: 15px; margin-bottom: 35px; }
+                    .stat-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; text-align: center; }
+                    .stat-card .val { font-size: 24px; font-weight: bold; color: #0d5c63; margin-bottom: 5px; }
+                    .stat-card .lbl { font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 600; letter-spacing: 0.5px; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 12px; }
+                    th, td { border: 1px solid #e5e7eb; padding: 12px 10px; text-align: left; }
+                    th { background-color: #f3f4f6; color: #374151; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+                    tr:nth-child(even) { background-color: #f9fafb; }
+                    .footer-sig { margin-top: 60px; display: flex; justify-content: right; text-align: center; }
+                    .sig-box { width: 220px; border-top: 1px solid #4b5563; padding-top: 8px; font-size: 13px; font-weight: bold; margin-top: 80px; }
+                    @media print {
+                        body { padding: 0; }
+                        button { display: none; }
+                        @page { margin: 1.5cm; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>DIARE ASSIST CLINICAL REPORT</h1>
+                    <p>Sistem Pengkajian Gastrointestinal Terpadu berbasis Standar 3S PPNI</p>
+                </div>
+                
+                <div class="meta-info">
+                    <div><strong>Tipe Laporan:</strong> Laporan Ringkasan Administrasi Pasien</div>
+                    <div><strong>Waktu Cetak:</strong> ${dateStr}</div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="val">${screenings.length}</div>
+                        <div class="lbl">Total Pasien</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="val" style="color: #b91c1c;">${highRisk}</div>
+                        <div class="lbl">Risiko Tinggi</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="val" style="color: #d97706;">${medRisk}</div>
+                        <div class="lbl">Risiko Sedang</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="val" style="color: #059669;">${lowRisk}</div>
+                        <div class="lbl">Risiko Rendah</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="val" style="color: #2563eb;">${resolved}</div>
+                        <div class="lbl">Status Selesai</div>
+                    </div>
+                </div>
+
+                <h3>Daftar Pemeriksaan Pasien Terdaftar</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Pasien</th>
+                            <th style="width: 80px; text-align: center;">Umur</th>
+                            <th style="width: 100px; text-align: center;">Tingkat Risiko</th>
+                            <th style="width: 80px; text-align: center;">Suhu Tubuh</th>
+                            <th>Diagnosis Keperawatan (SDKI)</th>
+                            <th>Target Luaran (SLKI)</th>
+                            <th style="width: 120px;">Status Outcome</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+
+                <div class="footer-sig">
+                    <div>
+                        <p>Penanggung Jawab Sistem Klinis,</p>
+                        <div class="sig-box">Administrator Diare Assist</div>
+                    </div>
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        setTimeout(function() { window.close(); }, 500);
+                    };
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
+    window.shareViaWhatsApp = function() {
+        const screenings = allRecords.filter(r=>r.record_type==='screening');
+        const highRisk = screenings.filter(r=>r.risk_level==='Tinggi').length;
+        const medRisk = screenings.filter(r=>r.risk_level==='Sedang').length;
+        const lowRisk = screenings.filter(r=>r.risk_level==='Rendah').length;
+        const resolved = screenings.filter(r=>r.outcome_status==='Tercapai').length;
+
+        let message = `*LAPORAN PEMANTAUAN KLINIS - DIARE ASSIST*\n`;
+        message += `_Dicetak pada: ${new Date().toLocaleString('id-ID')}_\n\n`;
+        message += `*RINGKASAN STATISTIK KESELURUHAN*\n`;
+        message += `• Total Pemeriksaan Pasien: ${screenings.length}\n`;
+        message += `• Risiko Tinggi (Merah): ${highRisk}\n`;
+        message += `• Risiko Sedang (Kuning): ${medRisk}\n`;
+        message += `• Risiko Rendah (Hijau): ${lowRisk}\n`;
+        message += `• Status Selesai/Tercapai: ${resolved}\n\n`;
+
+        if (screenings.length > 0) {
+            message += `*DAFTAR PASIEN AKTIF/TERBARU*\n`;
+            screenings.slice(-5).reverse().forEach((r, idx) => {
+                message += `${idx + 1}. *${r.patient_name || '-'}* (${r.age || '-'} th, ${r.gender || '-'}) \n`;
+                message += `   - Tingkat Risiko: ${r.risk_level || '-'}\n`;
+                message += `   - Gejala Utama: ${r.chief_complaint || '-'}\n`;
+                if (r.sdki_diagnosis) message += `   - Diagnosis SDKI: ${r.sdki_diagnosis}\n`;
+                message += `   - Status Outcome: ${r.outcome_status || 'Belum Tercapai'}\n\n`;
+            });
+        } else {
+            message += `_Belum ada data pemeriksaan terdaftar dalam sistem._\n`;
+        }
+        
+        message += `_Sistem Informasi DIARE ASSIST - Asisten Cerdas Penanganan Diare_`;
+
+        const encodedText = encodeURIComponent(message);
+        window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+    }
+
+    function renderFaskes() {
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Cari Fasilitas Kesehatan Terdekat 🏥</h2>
+                ${hintBox('Gunakan fitur di bawah ini untuk mencari Puskesmas, Rumah Sakit, atau Klinik terdekat dari lokasi Anda saat ini.')}
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="glass-card rounded-2xl p-6 glow text-center flex flex-col justify-between">
+                        <div>
+                            <span class="text-4xl">🏥</span>
+                            <h3 class="font-bold text-gray-800 mt-2 text-base">Puskesmas Terdekat</h3>
+                            <p class="text-xs text-gray-500 mt-1">Sangat cocok untuk penanganan awal diare, pemeriksaan umum, dan kebutuhan oralit.</p>
+                        </div>
+                        <a href="https://maps.google.com/?q=Puskesmas+terdekat" target="_blank" rel="noopener noreferrer" class="mt-4 w-full py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-1">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Buka di Peta
+                        </a>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 glow text-center flex flex-col justify-between">
+                        <div>
+                            <span class="text-4xl">🏢</span>
+                            <h3 class="font-bold text-gray-800 mt-2 text-base">Klinik Umum Terdekat</h3>
+                            <p class="text-xs text-gray-500 mt-1">Pilihan alternatif cepat dengan layanan dokter umum terdekat untuk pemeriksaan klinis langsung.</p>
+                        </div>
+                        <a href="https://maps.google.com/?q=Klinik+terdekat" target="_blank" rel="noopener noreferrer" class="mt-4 w-full py-2 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-1">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Buka di Peta
+                        </a>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 glow text-center flex flex-col justify-between border-l-4 border-l-red-500">
+                        <div>
+                            <span class="text-4xl">🚨</span>
+                            <h3 class="font-bold text-gray-800 mt-2 text-base">Rumah Sakit / IGD</h3>
+                            <p class="text-xs text-gray-500 mt-1">Harus segera dituju jika terdapat tanda dehidrasi berat, lemas hebat, atau BAB berdarah.</p>
+                        </div>
+                        <a href="https://maps.google.com/?q=Rumah+Sakit+terdekat" target="_blank" rel="noopener noreferrer" class="mt-4 w-full py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-1">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Buka di Peta
+                        </a>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 glow">
+                    <h3 class="font-semibold text-gray-800 mb-3">📞 Nomor Darurat Kesehatan (Ambulans)</h3>
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-red-50 border border-red-200">
+                        <div>
+                            <p class="text-lg font-bold text-red-700">Panggilan Darurat Peringatan: 112</p>
+                            <p class="text-xs text-red-600 font-medium">Bebas pulsa, aktif 24 jam untuk layanan ambulans dan kondisi darurat lainnya di Indonesia.</p>
+                        </div>
+                        <a href="tel:112" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition flex items-center gap-1">
+                            <i data-lucide="phone" class="w-4 h-4"></i> Hubungi 112
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    }
+
+    function renderEducation() {
+        const isPasien = currentRole === 'pasien';
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">${isPasien?'Apa Itu Diare? 📚':'Edukasi Diare'}</h2>
+                ${isPasien ? hintBox('Baca informasi di bawah untuk memahami diare dan cara mengatasinya. Informasi ini disusun dengan bahasa yang mudah dipahami.') : ''}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${[
+                        {t:'Apa itu Diare?', icon:'🤔', d: isPasien?'Diare adalah kondisi saat Anda buang air besar (BAB) encer atau cair <strong>3 kali atau lebih dalam sehari</strong>. Ini terjadi karena usus tidak menyerap air dengan baik.':'Diare adalah kondisi BAB encer >3x sehari. Penyebab utama: infeksi, makanan, dan obat-obatan.'},
+                        {t:'Penyebab Diare', icon:'🦠', d: isPasien?'<strong>Kuman</strong> dari makanan/minuman kotor, <strong>virus</strong> (rotavirus), <strong>bakteri</strong> (E.coli, Salmonella), alergi makanan, efek samping obat, atau stres.':'Infeksi (virus, bakteri, parasit), intoleransi makanan, efek samping obat, penyakit usus inflamasi.'},
+                        {t: isPasien?'⚠️ Kapan Harus ke Dokter?':'Tanda Bahaya', icon:'🚨', d: isPasien?'Segera ke dokter jika:<br>• Ada <strong>darah</strong> di BAB<br>• Demam tinggi (>38.5°C)<br>• Sangat lemas, pusing, mata cekung<br>• Tidak bisa minum sama sekali<br>• Diare sudah >3 hari tidak membaik<br>• Pada bayi/anak kecil/lansia':'Segera ke dokter jika: BAB berdarah, demam tinggi, dehidrasi berat, tidak bisa minum, muntah terus-menerus.'},
+                        {t:'Cara Mencegah Diare', icon:'🛡️', d: isPasien?'• <strong>Cuci tangan</strong> pakai sabun sebelum makan dan setelah dari toilet<br>• Minum <strong>air matang</strong> atau air kemasan<br>• <strong>Masak makanan sampai matang</strong><br>• Jaga kebersihan dapur dan toilet<br>• Simpan makanan di kulkas':'Cuci tangan dengan sabun, minum air bersih, masak makanan hingga matang, jaga kebersihan lingkungan.'},
+                        {t: isPasien?'Pertolongan Pertama di Rumah':'Penanganan Awal', icon:'🏠', d: isPasien?'<strong>Yang harus dilakukan segera:</strong><br>• Minum <strong>oralit</strong> (beli di apotek) setiap habis BAB<br>• Jika tidak ada oralit: campurkan ½ sendok teh garam + 6 sendok teh gula ke 1 liter air matang<br>• Tetap makan seperti biasa (porsi kecil tapi sering)<br>• Istirahat yang cukup<br>• Hindari minuman manis/berkafein':'Berikan oralit/cairan rehidrasi, lanjutkan makan, hindari minuman manis, istirahat cukup.'},
+                        {t:'Oralit: Obat Utama Diare', icon:'💧', d: isPasien?'Oralit adalah <strong>campuran garam dan gula khusus</strong> yang mengganti cairan tubuh yang hilang saat diare. Ini adalah obat <strong>paling penting</strong> saat diare!<br><br><strong>Cara minum:</strong> Sedikit-sedikit tapi sering (tiap 5-10 menit). Jangan diminum sekaligus banyak karena bisa muntah.':'Oral Rehydration Salts (ORS) adalah terapi utama untuk mencegah dan mengatasi dehidrasi akibat diare.'}
+                    ].map(e=>`
+                        <div class="glass-card rounded-2xl p-5 glow">
+                            <h3 class="font-semibold text-gray-800 mb-2 flex items-center gap-2"><span>${e.icon}</span>${e.t}</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">${e.d}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderBRATDiet() {
+        const isPasien = currentRole === 'pasien';
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">${isPasien?'Makanan yang Aman Saat Diare 🍌':'Diet BRAT untuk Diare'}</h2>
+                ${isPasien ? hintBox('Saat diare, perut Anda sensitif. Halaman ini menjelaskan makanan apa yang <strong>aman dimakan</strong> dan apa yang harus <strong>dihindari</strong> agar diare cepat sembuh.') : '<p class="text-sm text-gray-500 mb-4">Panduan pola makan saat gangguan pencernaan</p>'}
+
+                <div class="glass-card rounded-2xl p-6 glow mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-teal-500"></span>${isPasien?'Apa itu Diet BRAT?':'Tentang Diet BRAT'}</h3>
+                    <p class="text-sm text-gray-700 mb-4">${isPasien?'Diet BRAT adalah <strong>panduan makanan ringan</strong> yang aman untuk perut saat diare. BRAT singkatan dari:':'Diet BRAT adalah pola makan sementara untuk diare dan gangguan pencernaan ringan:'}</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-50 to-amber-50 border border-amber-200 text-center"><p class="text-2xl mb-1">🍌</p><p class="font-semibold text-sm text-gray-800">Bananas</p><p class="text-xs text-gray-600">Pisang</p></div>
+                        <div class="p-3 rounded-xl bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 text-center"><p class="text-2xl mb-1">🍚</p><p class="font-semibold text-sm text-gray-800">Rice</p><p class="text-xs text-gray-600">Nasi Putih</p></div>
+                        <div class="p-3 rounded-xl bg-gradient-to-br from-red-50 to-rose-50 border border-red-200 text-center"><p class="text-2xl mb-1">🍎</p><p class="font-semibold text-sm text-gray-800">Applesauce</p><p class="text-xs text-gray-600">Apel Halus</p></div>
+                        <div class="p-3 rounded-xl bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 text-center"><p class="text-2xl mb-1">🍞</p><p class="font-semibold text-sm text-gray-800">Toast</p><p class="text-xs text-gray-600">Roti Panggang</p></div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 glow mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>${isPasien?'Kenapa Makanan Ini Aman?':'Mengapa Diet BRAT?'}</h3>
+                    <div class="space-y-3">
+                        ${[
+                            [isPasien?'Mudah dicerna oleh perut':'Mudah dicerna', isPasien?'Tidak membuat perut bekerja keras':'Tidak membebani sistem pencernaan'],
+                            [isPasien?'Tidak berminyak dan tidak pedas':'Rendah lemak dan serat', isPasien?'Tidak merangsang usus untuk bekerja lebih':'Tidak merangsang usus'],
+                            [isPasien?'Membuat BAB lebih padat':'Membuat feses lebih padat', isPasien?'Membantu mengurangi BAB cair':'Mengurangi intensitas diare'],
+                            [isPasien?'Mengurangi rasa mual':'Mengurangi mual', isPasien?'Lebih nyaman di perut yang sedang sensitif':'Nyaman di lambung sensitif']
+                        ].map(([t,d])=>`<div class="flex gap-3"><div class="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center text-sm font-bold text-teal-600 flex-shrink-0">✓</div><div><p class="text-sm font-medium text-gray-800">${t}</p><p class="text-xs text-gray-600">${d}</p></div></div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 glow mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-orange-500"></span>${isPasien?'✅ Makanan yang BOLEH Dimakan':'Makanan yang Direkomendasikan'}</h3>
+                    <div class="p-4 rounded-xl bg-teal-50 border border-teal-200 mb-4">
+                        <p class="font-semibold text-teal-900 text-sm mb-1">⚠️ ${isPasien?'Yang Paling Penting: MINUM!':'Prioritas: Rehidrasi'}</p>
+                        <p class="text-sm text-teal-800">${isPasien?'Tetap minum oralit atau air putih sedikit-sedikit tapi sering. Ini lebih penting dari makanan!':'Utamakan rehidrasi dengan oralit atau cairan yang sesuai.'}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                            <p class="text-xs font-semibold text-gray-600 uppercase mb-2">${isPasien?'Saat Masih Diare':'Fase Awal'}</p>
+                            <ul class="text-xs text-gray-700 space-y-1"><li>🍌 Pisang matang</li><li>🍚 Nasi putih atau bubur</li><li>🍎 Apel yang dihaluskan</li><li>🍞 Roti tawar (tanpa mentega)</li></ul>
+                        </div>
+                        <div class="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                            <p class="text-xs font-semibold text-gray-600 uppercase mb-2">${isPasien?'Saat Sudah Mulai Membaik':'Saat Membaik'}</p>
+                            <ul class="text-xs text-gray-700 space-y-1"><li>🥔 Kentang rebus</li><li>🍪 Biskuit tawar</li><li>🍲 Sup bening (tanpa santan)</li><li>🍗 Ayam rebus tanpa kulit / telur rebus</li></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 glow mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span>${isPasien?'❌ Makanan yang HARUS DIHINDARI':'Makanan yang Dihindari'}</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        ${[
+                            isPasien?'Gorengan & makanan berminyak':'Makanan Berlemak/Digoreng',
+                            isPasien?'Makanan pedas (sambal, cabai)':'Makanan Pedas',
+                            isPasien?'Susu & keju (sementara)':'Produk Susu',
+                            isPasien?'Kopi & teh kental':'Minuman Berkafein',
+                            isPasien?'Minuman bersoda':'Minuman Berkarbonasi',
+                            isPasien?'Makanan terlalu manis':'Makanan Tinggi Gula'
+                        ].map(item=>`<div class="p-3 rounded-lg bg-red-50 border border-red-200"><p class="text-xs font-semibold text-red-700">${item}</p></div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 glow mb-6 border-l-4 border-l-amber-500">
+                    <h3 class="font-semibold text-gray-800 mb-3">⚡ ${isPasien?'Catatan Penting':'Keterbatasan Diet BRAT'}</h3>
+                    <p class="text-sm text-gray-700 leading-relaxed">${isPasien?'Diet BRAT hanya untuk <strong>1-2 hari pertama</strong> saat diare. Setelah itu, mulai makan normal secara bertahap. Tubuh butuh nutrisi lengkap untuk sembuh!':'Diet BRAT hanya sementara (1-2 hari). Segera kembali ke pola makan seimbang sesuai toleransi.'}</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 glow border-l-4 border-l-red-500">
+                    <h3 class="font-semibold text-gray-800 mb-4">🚨 ${isPasien?'Segera ke Dokter Jika:':'Tanda Bahaya'}</h3>
+                    <div class="space-y-2">
+                        ${[
+                            isPasien?'Ada darah di BAB':'Darah pada tinja',
+                            isPasien?'Demam tinggi (badan sangat panas)':'Demam tinggi (>39°C)',
+                            isPasien?'Sangat haus, lemas, jarang buang air kecil':'Tanda dehidrasi berat',
+                            isPasien?'Diare tidak membaik setelah 3 hari':'Diare >3 hari',
+                            isPasien?'Muntah terus sehingga tidak bisa minum':'Muntah persisten'
+                        ].map(w=>`<div class="flex gap-2 items-start"><span class="text-red-500 font-bold flex-shrink-0">•</span><p class="text-sm text-gray-700">${w}</p></div>`).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderQuiz() {
+        const isPasien = currentRole === 'pasien';
+        const questions = [
+            {q: isPasien?'Berapa kali BAB encer dalam sehari yang termasuk diare?':'Berapa frekuensi BAB yang dikategorikan diare?', opts:[isPasien?'1 kali':'1x/hari',isPasien?'2 kali':'2x/hari',isPasien?'3 kali atau lebih':'≥3x/hari',isPasien?'5 kali':'5x/hari'], ans:2},
+            {q: isPasien?'Tipe BAB mana yang menunjukkan diare berat?':'Tipe Bristol berapa yang menunjukkan diare berat?', opts:['Tipe 3','Tipe 5','Tipe 6','Tipe 7'], ans:3},
+            {q: isPasien?'Minuman apa yang paling baik saat diare?':'Cairan rehidrasi yang direkomendasikan WHO?', opts:['Air putih biasa','Oralit','Susu','Jus buah'], ans:1},
+            {q: isPasien?'Berapa lama diare yang masih termasuk "baru"?':'Berapa lama diare dianggap akut?', opts:['1-2 hari','Kurang dari 2 minggu','1-3 bulan','Lebih dari 3 bulan'], ans:1},
+            {q: isPasien?'Apa bahaya utama dari diare?':'Komplikasi utama diare adalah?', opts:[isPasien?'Demam tinggi':'Demam tinggi',isPasien?'Kekurangan cairan (dehidrasi)':'Dehidrasi',isPasien?'Perdarahan':'Perdarahan',isPasien?'Gangguan jantung':'Gangguan jantung'], ans:1},
+            {q: isPasien?'Berapa lama zinc harus diminum saat diare?':'Zinc direkomendasikan diberikan berapa lama?', opts:['3 hari','5 hari','10 hari','14 hari'], ans:2},
+            {q: isPasien?'Kapan harus segera ke rumah sakit?':'Kapan harus merujuk ke rumah sakit?', opts:[isPasien?'BAB 2x sehari':'BAB 2x/hari',isPasien?'Sangat lemas dan tidak bisa minum':'Dehidrasi berat',isPasien?'Demam ringan':'Demam ringan','Semua salah'], ans:1},
+            {q: isPasien?'Makanan apa yang harus dihindari saat diare?':'Makanan yang harus dihindari saat diare?', opts:['Nasi putih',isPasien?'Gorengan':'Makanan berlemak','Telur rebus','Pisang'], ans:1},
+            {q: isPasien?'Cara minum oralit yang benar adalah?':'Cara pemberian ORS yang tepat?', opts:[isPasien?'Minum sekaligus banyak':'Bolus besar',isPasien?'Sedikit-sedikit tapi sering':'Frekuen sedikit-sedikit',isPasien?'Hanya saat haus':'Saat haus saja',isPasien?'Dicampur susu':'Dicampur susu'], ans:1},
+            {q: isPasien?'Cuci tangan yang benar pakai apa?':'Hand hygiene untuk pencegahan diare?', opts:[isPasien?'Air saja':'Air saja',isPasien?'Sabun dan air mengalir':'Sabun + air mengalir',isPasien?'Tisu basah':'Tisu basah',isPasien?'Hand sanitizer saja':'Hand sanitizer'], ans:1},
+        ];
+
+        window.quizScore = 0;
+        window.quizAnswered = 0;
+        const area = document.getElementById('content-area');
+        area.innerHTML = `
+            <div class="fade-in">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">${isPasien?'Kuis: Seberapa Paham Anda? 🧠':'Quiz Edukasi Diare'}</h2>
+                    ${isPasien ? hintBox('Jawab 10 pertanyaan di bawah untuk menguji pemahaman Anda tentang diare. Tidak ada yang salah — ini untuk belajar!') : ''}
+                </div>
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    <div class="glass-card rounded-xl p-4 glow text-center"><p class="text-xs text-gray-500 mb-1">Dijawab</p><p class="text-2xl font-bold text-teal-600" id="answered-count">0</p><p class="text-xs text-gray-400">dari ${questions.length}</p></div>
+                    <div class="glass-card rounded-xl p-4 glow text-center"><p class="text-xs text-gray-500 mb-1">Benar</p><p class="text-2xl font-bold text-emerald-600" id="score-count">0</p></div>
+                    <div class="glass-card rounded-xl p-4 glow text-center"><p class="text-xs text-gray-500 mb-1">Persentase</p><p class="text-2xl font-bold text-orange-600" id="percentage-count">0%</p></div>
+                </div>
+                <div class="w-full h-2 rounded-full bg-gray-200 mb-6 overflow-hidden"><div id="progress-bar" class="h-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-300" style="width:0%"></div></div>
+                <div class="space-y-4" id="quiz-container">
+                    ${questions.map((q,qi)=>`
+                        <div class="glass-card rounded-2xl p-5 glow" data-qindex="${qi}">
+                            <div class="flex items-center justify-between mb-3">
+                                <p class="font-semibold text-gray-800 text-sm md:text-base">${qi+1}. ${q.q}</p>
+                                <span id="status-${qi}" class="text-xs font-semibold px-2 py-1 rounded-full bg-gray-100 text-gray-500">—</span>
+                            </div>
+                            <div class="space-y-2">${q.opts.map((o,oi)=>`<button onclick="checkQuiz(this,${qi},${oi},${q.ans},${questions.length})" class="quiz-opt-${qi} w-full text-left p-3 rounded-xl border border-gray-200 hover:border-teal-400 hover:bg-teal-50 text-sm transition">${o}</button>`).join('')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="result-section" class="hidden mt-8">
+                    <div class="glass-card rounded-2xl p-8 glow text-center fade-in">
+                        <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white"><span class="text-3xl font-bold" id="final-score">0</span></div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2" id="result-title"></h3>
+                        <p class="text-sm text-gray-600 mb-4" id="result-message"></p>
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="p-3 rounded-xl bg-emerald-50"><p class="text-xs text-emerald-600">Benar</p><p class="text-xl font-bold text-emerald-700" id="result-correct">0</p></div>
+                            <div class="p-3 rounded-xl bg-orange-50"><p class="text-xs text-orange-600">Salah</p><p class="text-xl font-bold text-orange-700" id="result-wrong">0</p></div>
+                            <div class="p-3 rounded-xl bg-blue-50"><p class="text-xs text-blue-600">Nilai</p><p class="text-xl font-bold text-blue-700" id="result-percentage">0%</p></div>
+                        </div>
+                        <div id="feedback-box" class="p-4 rounded-xl mb-4 text-left text-sm"></div>
+                        <button onclick="renderView('quiz')" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold hover:shadow-lg transition">Coba Lagi</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    window.checkQuiz = function(btn, qi, oi, ans, totalQ) {
+        const opts = document.querySelectorAll(`.quiz-opt-${qi}`);
+        opts.forEach((b,i)=>{
+            b.disabled = true;
+            if(i===ans) b.classList.add('border-green-500','bg-green-50','text-green-700','font-medium');
+            else if(i===oi && oi!==ans) b.classList.add('border-red-500','bg-red-50','text-red-700');
+        });
+        const st = document.getElementById(`status-${qi}`);
+        if(oi===ans) { st.textContent='✓ Benar'; st.className='text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700'; window.quizScore++; }
+        else { st.textContent='✗ Salah'; st.className='text-xs font-semibold px-2 py-1 rounded-full bg-red-100 text-red-700'; }
+        window.quizAnswered++;
+        document.getElementById('answered-count').textContent = window.quizAnswered;
+        document.getElementById('score-count').textContent = window.quizScore;
+        const pct = Math.round((window.quizScore/totalQ)*100);
+        document.getElementById('percentage-count').textContent = pct+'%';
+        document.getElementById('progress-bar').style.width = ((window.quizAnswered/totalQ)*100)+'%';
+        if(window.quizAnswered===totalQ) setTimeout(()=>showQuizResult(totalQ),600);
+    };
+
+    function showQuizResult(total) {
+        const score = window.quizScore;
+        const pct = Math.round((score/total)*100);
+        let title, msg, fb;
+        if(pct>=80){title='🌟 Luar Biasa!';msg='Pengetahuan Anda tentang diare sangat baik!';fb='bg-emerald-50 border border-emerald-200 text-emerald-800';}
+        else if(pct>=60){title='✓ Cukup Baik';msg='Anda sudah cukup memahami tentang diare.';fb='bg-blue-50 border border-blue-200 text-blue-800';}
+        else{title='📚 Perlu Belajar Lagi';msg='Baca halaman "Info Diare" untuk menambah pengetahuan Anda.';fb='bg-amber-50 border border-amber-200 text-amber-800';}
+        document.getElementById('final-score').textContent=score+'/'+total;
+        document.getElementById('result-title').textContent=title;
+        document.getElementById('result-message').textContent=msg;
+        document.getElementById('result-correct').textContent=score;
+        document.getElementById('result-wrong').textContent=total-score;
+        document.getElementById('result-percentage').textContent=pct+'%';
+        document.getElementById('feedback-box').className='p-4 rounded-xl mb-4 text-left text-sm '+fb;
+        document.getElementById('feedback-box').innerHTML=pct>=80?'<strong>Excellent!</strong> Anda siap menerapkan pengetahuan ini dalam kehidupan sehari-hari.':pct>=60?'<strong>Good!</strong> Coba baca lagi materi edukasi untuk mengisi celah pengetahuan.':'<strong>Tip:</strong> Kunjungi menu "Info Diare" dan "Makanan Saat Diare" untuk mempelajari dasarnya.';
+        document.getElementById('quiz-container').classList.add('hidden');
+        document.getElementById('result-section').classList.remove('hidden');
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        document.getElementById('toast-msg').textContent = msg;
+        t.classList.remove('hidden');
+        setTimeout(()=>t.classList.add('hidden'), 3000);
+    }
+
+    document.getElementById('menu-toggle').addEventListener('click', ()=>{
+        document.getElementById('sidebar').classList.toggle('sidebar-hidden');
+    });
+
+    document.getElementById('role-select').addEventListener('change', (e)=>{
+        currentRole = e.target.value;
+        currentPatientId = null;
+        checkPatientSession();
+        renderSidebar();
+        renderView('dashboard');
+    });
+
+    // Particles
+    (function(){
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        for(let i=0;i<30;i++) particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,dx:(Math.random()-0.5)*0.4,dy:(Math.random()-0.5)*0.4});
+        function draw(){
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach(p=>{
+                ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(6,182,212,0.12)';ctx.fill();
+                p.x+=p.dx;p.y+=p.dy;
+                if(p.x<0||p.x>canvas.width)p.dx*=-1;
+                if(p.y<0||p.y>canvas.height)p.dy*=-1;
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+
+    lucide.createIcons();
+    initApp();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a18384c2a026b5a2',t:'MTc4MzU2MDE1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
